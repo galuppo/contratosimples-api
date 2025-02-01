@@ -1,6 +1,7 @@
 ﻿using contratosimples_api.Data;
 using contratosimples_api.Models.Domain;
 using contratosimples_api.Repositories.Interface;
+using Microsoft.EntityFrameworkCore;
 
 namespace contratosimples_api.Repositories.Implementation
 {
@@ -18,6 +19,11 @@ namespace contratosimples_api.Repositories.Implementation
 			await dbContext.SaveChangesAsync();
 
 			return centroDeCusto;
+		}
+
+		public async Task<IEnumerable<CentroDeCusto>> GetAllAsync()
+		{
+			return await dbContext.CentroDeCustos.ToListAsync();
 		}
 	}
 }

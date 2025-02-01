@@ -5,5 +5,7 @@ namespace contratosimples_api.Repositories.Interface
 	public interface ICentroDeCustoRepository
 	{
 		Task<CentroDeCusto> CreateAsync(CentroDeCusto centroDeCusto);
+
+		Task<IEnumerable<CentroDeCusto>> GetAllAsync();
 	}
 }

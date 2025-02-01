@@ -38,5 +38,24 @@ namespace contratosimples_api.Controllers
 
 			return Ok(response);
 		}
+
+		[HttpGet]
+		public async Task<IActionResult> GetAllCentroDeCusto()
+		{
+			var centroDeCustos = await centroDeCustoRepository.GetAllAsync();
+
+			var response = new List<CentroDeCustoDto>();
+			foreach (var cdc in centroDeCustos)
+			{
+				response.Add(new CentroDeCustoDto
+				{
+					Cod = cdc.Cod,
+					Nome = cdc.Nome,
+					Obs = cdc.Obs
+				});
+			}
+			return Ok(response);
+
+		}
 	}
 }
