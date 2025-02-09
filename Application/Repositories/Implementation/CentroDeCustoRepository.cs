@@ -1,9 +1,9 @@
-﻿using contratosimples_api.Data;
-using contratosimples_api.Models.Domain;
-using contratosimples_api.Repositories.Interface;
+﻿using contratosimples_api.Application.Data;
+using contratosimples_api.Application.Models.Entities;
+using contratosimples_api.Application.Repositories.Interface;
 using Microsoft.EntityFrameworkCore;
 
-namespace contratosimples_api.Repositories.Implementation
+namespace contratosimples_api.Application.Repositories.Implementation
 {
 	public class CentroDeCustoRepository : ICentroDeCustoRepository
 	{

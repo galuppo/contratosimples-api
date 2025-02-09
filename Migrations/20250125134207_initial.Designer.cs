@@ -4,13 +4,13 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using contratosimples_api.Data;
+using contratosimples_api.Application.Data;
 
 #nullable disable
 
 namespace contratosimples_api.Migrations
 {
-    [DbContext(typeof(ApplicationDbContext))]
+	[DbContext(typeof(ApplicationDbContext))]
     [Migration("20250125134207_initial")]
     partial class initial
     {

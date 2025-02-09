@@ -1,6 +1,6 @@
-using contratosimples_api.Data;
-using contratosimples_api.Repositories.Implementation;
-using contratosimples_api.Repositories.Interface;
+using contratosimples_api.Application.Data;
+using contratosimples_api.Application.Repositories.Implementation;
+using contratosimples_api.Application.Repositories.Interface;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 

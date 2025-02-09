@@ -1,6 +1,6 @@
-﻿using contratosimples_api.Models.Domain;
+﻿using contratosimples_api.Application.Models.Entities;
 
-namespace contratosimples_api.Repositories.Interface
+namespace contratosimples_api.Application.Repositories.Interface
 {
 	public interface ICentroDeCustoRepository
 	{

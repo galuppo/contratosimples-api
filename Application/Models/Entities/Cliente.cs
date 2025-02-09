@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace contratosimples_api.Models.Domain
+namespace contratosimples_api.Application.Models.Entities
 {
 	public class Cliente
 	{
-
 		[Key] public int Id { get; set; }
 		public string RazaoSocial { get; set; }
 		public string NomeFantasia { get; set; }

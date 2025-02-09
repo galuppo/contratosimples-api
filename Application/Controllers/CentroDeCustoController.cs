@@ -1,11 +1,9 @@
-﻿using contratosimples_api.Data;
-using contratosimples_api.Models.Domain;
-using contratosimples_api.Models.DTO.CentroDeCusto;
-using contratosimples_api.Repositories.Interface;
-using Microsoft.AspNetCore.Http;
+﻿using contratosimples_api.Application.Models.DTO.CentroDeCusto;
+using contratosimples_api.Application.Models.Entities;
+using contratosimples_api.Application.Repositories.Interface;
 using Microsoft.AspNetCore.Mvc;
 
-namespace contratosimples_api.Controllers
+namespace contratosimples_api.Application.Controllers
 {
 
 	[Route("api/[controller]")]
@@ -20,21 +18,13 @@ namespace contratosimples_api.Controllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> CreateCentroDeCusto([FromBody]CreateCentroDeCustoRequestDto request)
+		public async Task<IActionResult> CreateCentroDeCusto([FromBody] CreateCentroDeCustoRequestDto request)
 		{
-			var centroDeCusto = new CentroDeCusto { 
-				Nome = request.Nome,
-				Obs = request.Obs
-			};
+			var centroDeCusto = request.MapToEntity();
 
 			await centroDeCustoRepository.CreateAsync(centroDeCusto);
 
-			var response = new CentroDeCustoDto
-			{
-				Cod = centroDeCusto.Cod,
-				Nome = centroDeCusto.Nome,
-				Obs = centroDeCusto.Obs
-			};
+			var response = CentroDeCustoDto.MapFromEntity(centroDeCusto);
 
 			return Ok(response);
 		}
@@ -47,12 +37,7 @@ namespace contratosimples_api.Controllers
 			var response = new List<CentroDeCustoDto>();
 			foreach (var cdc in centroDeCustos)
 			{
-				response.Add(new CentroDeCustoDto
-				{
-					Cod = cdc.Cod,
-					Nome = cdc.Nome,
-					Obs = cdc.Obs
-				});
+				response.Add(CentroDeCustoDto.MapFromEntity(cdc));
 			}
 			return Ok(response);
 
@@ -60,44 +45,30 @@ namespace contratosimples_api.Controllers
 
 		[HttpGet]
 		[Route("{codCentroDeCusto:int}")]
-		public async Task<IActionResult> GetCentroDeCustoById([FromRoute]int codCentroDeCusto)
+		public async Task<IActionResult> GetCentroDeCustoById([FromRoute] int codCentroDeCusto)
 		{
 			var cdc = await centroDeCustoRepository.GetById(codCentroDeCusto);
-			
+
 			if (cdc is null)
 				return NotFound();
 
-			var response = new CentroDeCustoDto
-			{
-				Cod = cdc.Cod,
-				Nome = cdc.Nome,
-				Obs = cdc.Obs,
-			};
+			var response = CentroDeCustoDto.MapFromEntity(cdc);
 
 			return Ok(response);
 		}
 
 		[HttpPut]
 		[Route("{codCentroDeCusto:int}")]
-		public async Task<IActionResult> UpdateCentroDeCustoById([FromRoute]int codCentroDeCusto, [FromBody]UpdateCentroDeCustoRequestDto request)
+		public async Task<IActionResult> UpdateCentroDeCustoById([FromRoute] int codCentroDeCusto, [FromBody] UpdateCentroDeCustoRequestDto request)
 		{
-			var cdc = new CentroDeCusto
-			{
-				Cod = codCentroDeCusto,
-				Nome = request.Nome,
-				Obs = request.Obs
-			};
+			var cdc = request.MapToEntity();
+			cdc.Cod = codCentroDeCusto;
 
 			cdc = await centroDeCustoRepository.UpdateAsync(cdc);
 			if (cdc is null)
 				return NotFound();
 
-			var response = new CentroDeCustoDto
-			{
-				Cod = cdc.Cod,
-				Nome = cdc.Nome,
-				Obs = cdc.Obs
-			};
+			var response = CentroDeCustoDto.MapFromEntity(cdc);
 
 			return Ok(response);
 
@@ -108,7 +79,7 @@ namespace contratosimples_api.Controllers
 		public async Task<IActionResult> DeleteCentroDeCusto([FromRoute] int codCentroDeCusto)
 		{
 			var cdc = await centroDeCustoRepository.DeleteAsync(codCentroDeCusto);
-			
+
 			if (cdc is null) return NotFound();
 
 			return Ok(cdc.Cod);
