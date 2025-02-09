@@ -21,9 +21,39 @@ namespace contratosimples_api.Repositories.Implementation
 			return centroDeCusto;
 		}
 
+		public async Task<CentroDeCusto?> DeleteAsync(int cod)
+		{
+			var cdc = await dbContext.CentroDeCustos.FirstOrDefaultAsync(c => c.Cod == cod);
+			if (cdc == null)
+				return null;
+
+			dbContext.CentroDeCustos.Remove(cdc);
+			await dbContext.SaveChangesAsync();
+			return cdc;
+		}
+
 		public async Task<IEnumerable<CentroDeCusto>> GetAllAsync()
 		{
 			return await dbContext.CentroDeCustos.ToListAsync();
+		}
+
+		public async Task<CentroDeCusto?> GetById(int cod)
+		{
+			return await dbContext.CentroDeCustos.FirstOrDefaultAsync(c => c.Cod == cod);
+		}
+
+		public async Task<CentroDeCusto?> UpdateAsync(CentroDeCusto centroDeCusto)
+		{
+			var cdc = await dbContext.CentroDeCustos.FirstOrDefaultAsync(c => c.Cod == centroDeCusto.Cod);
+
+			if (cdc != null)
+			{
+				dbContext.Entry(cdc).CurrentValues.SetValues(centroDeCusto);
+				await dbContext.SaveChangesAsync();
+				return centroDeCusto;
+			}
+
+			return null;
 		}
 	}
 }

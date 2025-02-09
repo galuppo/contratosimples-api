@@ -20,7 +20,7 @@ namespace contratosimples_api.Controllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> CreateCentroDeCusto(CreateCentroDeCustoRequestDto request)
+		public async Task<IActionResult> CreateCentroDeCusto([FromBody]CreateCentroDeCustoRequestDto request)
 		{
 			var centroDeCusto = new CentroDeCusto { 
 				Nome = request.Nome,
@@ -56,6 +56,62 @@ namespace contratosimples_api.Controllers
 			}
 			return Ok(response);
 
+		}
+
+		[HttpGet]
+		[Route("{codCentroDeCusto:int}")]
+		public async Task<IActionResult> GetCentroDeCustoById([FromRoute]int codCentroDeCusto)
+		{
+			var cdc = await centroDeCustoRepository.GetById(codCentroDeCusto);
+			
+			if (cdc is null)
+				return NotFound();
+
+			var response = new CentroDeCustoDto
+			{
+				Cod = cdc.Cod,
+				Nome = cdc.Nome,
+				Obs = cdc.Obs,
+			};
+
+			return Ok(response);
+		}
+
+		[HttpPut]
+		[Route("{codCentroDeCusto:int}")]
+		public async Task<IActionResult> UpdateCentroDeCustoById([FromRoute]int codCentroDeCusto, [FromBody]UpdateCentroDeCustoRequestDto request)
+		{
+			var cdc = new CentroDeCusto
+			{
+				Cod = codCentroDeCusto,
+				Nome = request.Nome,
+				Obs = request.Obs
+			};
+
+			cdc = await centroDeCustoRepository.UpdateAsync(cdc);
+			if (cdc is null)
+				return NotFound();
+
+			var response = new CentroDeCustoDto
+			{
+				Cod = cdc.Cod,
+				Nome = cdc.Nome,
+				Obs = cdc.Obs
+			};
+
+			return Ok(response);
+
+		}
+
+		[HttpDelete]
+		[Route("{codCentroDeCusto:int}")]
+		public async Task<IActionResult> DeleteCentroDeCusto([FromRoute] int codCentroDeCusto)
+		{
+			var cdc = await centroDeCustoRepository.DeleteAsync(codCentroDeCusto);
+			
+			if (cdc is null) return NotFound();
+
+			return Ok(cdc.Cod);
 		}
 	}
 }
