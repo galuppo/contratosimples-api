@@ -1,4 +1,4 @@
-﻿namespace contratosimples_api.Models.DTO
+﻿namespace contratosimples_api.Models.DTO.CentroDeCusto
 {
 	public class CreateCentroDeCustoRequestDto
 	{

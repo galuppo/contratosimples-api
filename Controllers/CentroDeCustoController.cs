@@ -1,6 +1,6 @@
 ﻿using contratosimples_api.Data;
 using contratosimples_api.Models.Domain;
-using contratosimples_api.Models.DTO;
+using contratosimples_api.Models.DTO.CentroDeCusto;
 using contratosimples_api.Repositories.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
