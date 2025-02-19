@@ -1,7 +1,5 @@
 using contratosimples_api.Application.Data;
-using contratosimples_api.Application.Repositories.Implementation;
-using contratosimples_api.Application.Repositories.Interface;
-using Microsoft.AspNetCore.Builder;
+using contratosimples_api.Application.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,19 +13,18 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionString("ContratoSimplesConnectionString"));
+	options.UseNpgsql(builder.Configuration.GetConnectionString("ContratoSimplesConnectionString"));
 });
 
-builder.Services.AddScoped<ICentroDeCustoRepository, CentroDeCustoRepository>();
-builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
+builder.Services.AddScoped<UnitOfWork>();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
-	app.UseSwaggerUI( options =>
+	app.MapOpenApi();
+	app.UseSwaggerUI(options =>
 	{
 		options.SwaggerEndpoint("/openapi/v1.json", "V1");
 	});

@@ -1,7 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using contratosimples_api.Application.Models.DTO.Cliente;
-using contratosimples_api.Application.Repositories.Interface;
-using contratosimples_api.Application.Models.Entities;
+﻿using contratosimples_api.Application.Models.DTO.Cliente;
+using contratosimples_api.Application.Repositories;
+using Microsoft.AspNetCore.Mvc;
 
 namespace contratosimples_api.Application.Controllers
 {
@@ -9,11 +8,12 @@ namespace contratosimples_api.Application.Controllers
 	[ApiController]
 	public class ClienteController : ControllerBase
 	{
-		private readonly IClienteRepository clienteRepository;
 
-		public ClienteController(IClienteRepository clienteRepository)
+		private readonly UnitOfWork uow;
+
+		public ClienteController(UnitOfWork uow)
 		{
-			this.clienteRepository = clienteRepository;
+			this.uow = uow;
 		}
 
 		[HttpPost]
@@ -21,7 +21,8 @@ namespace contratosimples_api.Application.Controllers
 		{
 			var cliente = request.MapToEntity();
 
-			await clienteRepository.CreateAsync(cliente);
+			await uow.ClienteRepository.InsertAsync(cliente);
+			await uow.SaveAsync();
 
 			var response = ClienteDto.MapFromEntity(cliente);
 
@@ -31,7 +32,7 @@ namespace contratosimples_api.Application.Controllers
 		[HttpGet]
 		public async Task<IActionResult> GetAllCliente()
 		{
-			var clientes = await clienteRepository.GetAllAsync();
+			var clientes = await uow.ClienteRepository.GetAsync();
 
 			var response = new List<ClienteDto>();
 			foreach (var c in clientes)
@@ -45,7 +46,7 @@ namespace contratosimples_api.Application.Controllers
 		[Route("{idCliente:int}")]
 		public async Task<IActionResult> GetClienteById([FromRoute] int idCliente)
 		{
-			var c = await clienteRepository.GetById(idCliente);
+			var c = await uow.ClienteRepository.GetByIdAsync(idCliente);
 
 			if (c == null)
 				return NotFound();
@@ -63,10 +64,10 @@ namespace contratosimples_api.Application.Controllers
 			var cli = request.MapToEntity();
 			cli.Id = idCliente;
 
-			cli = await clienteRepository.UpdateAsync(cli);
+			cli = await uow.ClienteRepository.UpdateAsync(idCliente, cli);
 			if (cli == null)
 				return NotFound();
-
+			await uow.SaveAsync();
 			var reponse = ClienteDto.MapFromEntity(cli);
 			return Ok(reponse);
 		}
@@ -75,8 +76,10 @@ namespace contratosimples_api.Application.Controllers
 		[Route("{idCliente:int}")]
 		public async Task<IActionResult> DeleteCliente([FromRoute] int idCliente)
 		{
-			var cli = await clienteRepository.DeleteAsync(idCliente);
+			var cli = await uow.ClienteRepository.DeleteAsync(idCliente);
 			if (cli == null) return NotFound();
+
+			await uow.SaveAsync();
 
 			return Ok(cli.Id);
 		}
