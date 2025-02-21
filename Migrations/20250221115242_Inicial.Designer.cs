@@ -10,9 +10,9 @@ using contratosimples_api.Application.Data;
 
 namespace contratosimples_api.Migrations
 {
-	[DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250209142553_Add Fornecedor")]
-    partial class AddFornecedor
+    [DbContext(typeof(ApplicationDbContext))]
+    [Migration("20250221115242_Inicial")]
+    partial class Inicial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,13 +24,13 @@ namespace contratosimples_api.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("contratosimples_api.Models.Domain.CentroDeCusto", b =>
+            modelBuilder.Entity("contratosimples_api.Application.Models.Entities.CentroDeCusto", b =>
                 {
-                    b.Property<int>("Cod")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Cod"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Nome")
                         .IsRequired()
@@ -40,12 +40,12 @@ namespace contratosimples_api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Cod");
+                    b.HasKey("Id");
 
                     b.ToTable("CentroDeCustos");
                 });
 
-            modelBuilder.Entity("contratosimples_api.Models.Domain.Cliente", b =>
+            modelBuilder.Entity("contratosimples_api.Application.Models.Entities.Cliente", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -82,7 +82,7 @@ namespace contratosimples_api.Migrations
                     b.ToTable("Clientes");
                 });
 
-            modelBuilder.Entity("contratosimples_api.Models.Domain.ContatoFornecedor", b =>
+            modelBuilder.Entity("contratosimples_api.Application.Models.Entities.ContatoFornecedor", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -98,7 +98,7 @@ namespace contratosimples_api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("FornecedorId")
+                    b.Property<int>("FornecedorId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Nome")
@@ -116,7 +116,7 @@ namespace contratosimples_api.Migrations
                     b.ToTable("ContatosFornecedores");
                 });
 
-            modelBuilder.Entity("contratosimples_api.Models.Domain.Fornecedor", b =>
+            modelBuilder.Entity("contratosimples_api.Application.Models.Entities.Fornecedor", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -157,14 +157,16 @@ namespace contratosimples_api.Migrations
                     b.ToTable("Fornecedores");
                 });
 
-            modelBuilder.Entity("contratosimples_api.Models.Domain.ContatoFornecedor", b =>
+            modelBuilder.Entity("contratosimples_api.Application.Models.Entities.ContatoFornecedor", b =>
                 {
-                    b.HasOne("contratosimples_api.Models.Domain.Fornecedor", null)
+                    b.HasOne("contratosimples_api.Application.Models.Entities.Fornecedor", null)
                         .WithMany("Contatos")
-                        .HasForeignKey("FornecedorId");
+                        .HasForeignKey("FornecedorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("contratosimples_api.Models.Domain.Fornecedor", b =>
+            modelBuilder.Entity("contratosimples_api.Application.Models.Entities.Fornecedor", b =>
                 {
                     b.Navigation("Contatos");
                 });

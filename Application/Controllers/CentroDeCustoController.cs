@@ -44,10 +44,10 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpGet]
-		[Route("{codCentroDeCusto:int}")]
-		public async Task<IActionResult> GetCentroDeCustoById([FromRoute] int codCentroDeCusto)
+		[Route("{idCentroDeCusto:int}")]
+		public async Task<IActionResult> GetCentroDeCustoById([FromRoute] int idCentroDeCusto)
 		{
-			var cdc = await uow.CentroDeCustoRepository.GetByIdAsync(codCentroDeCusto);
+			var cdc = await uow.CentroDeCustoRepository.GetByIdAsync(idCentroDeCusto);
 
 			if (cdc is null)
 				return NotFound();
@@ -58,17 +58,17 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpPut]
-		[Route("{codCentroDeCusto:int}")]
-		public async Task<IActionResult> UpdateCentroDeCustoById([FromRoute] int codCentroDeCusto, [FromBody] UpdateCentroDeCustoRequestDto request)
+		[Route("{idCentroDeCusto:int}")]
+		public async Task<IActionResult> UpdateCentroDeCustoById([FromRoute] int idCentroDeCusto, [FromBody] UpdateCentroDeCustoRequestDto request)
 		{
-			var cdc = await uow.CentroDeCustoRepository.GetByIdAsync(codCentroDeCusto);
+			var cdc = await uow.CentroDeCustoRepository.GetByIdAsync(idCentroDeCusto);
 			if (cdc is null)
 				return NotFound();
 
 			cdc = request.MapToEntity();
-			cdc.Cod = codCentroDeCusto;
+			cdc.Id = idCentroDeCusto;
 
-			await uow.CentroDeCustoRepository.UpdateAsync(codCentroDeCusto, cdc);
+			await uow.CentroDeCustoRepository.UpdateAsync(idCentroDeCusto, cdc);
 			await uow.SaveAsync();
 
 			var response = CentroDeCustoDto.MapFromEntity(cdc);
@@ -78,16 +78,16 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpDelete]
-		[Route("{codCentroDeCusto:int}")]
-		public async Task<IActionResult> DeleteCentroDeCusto([FromRoute] int codCentroDeCusto)
+		[Route("{idCentroDeCusto:int}")]
+		public async Task<IActionResult> DeleteCentroDeCusto([FromRoute] int idCentroDeCusto)
 		{
-			var cdc = await uow.CentroDeCustoRepository.DeleteAsync(codCentroDeCusto);
+			var cdc = await uow.CentroDeCustoRepository.DeleteAsync(idCentroDeCusto);
 
 			if (cdc is null) return NotFound();
 
 			await uow.SaveAsync();
 
-			return Ok(cdc.Cod);
+			return Ok(cdc.Id);
 		}
 	}
 }

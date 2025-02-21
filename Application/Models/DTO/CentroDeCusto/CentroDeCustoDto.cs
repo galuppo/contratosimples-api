@@ -2,7 +2,7 @@
 {
 	public class CentroDeCustoDto
 	{
-		public int Cod { get; set; }
+		public int Id { get; set; }
 		public string Nome { get; set; }
 		public string Obs { get; set; }
 
@@ -10,7 +10,7 @@
 		{
 			return new CentroDeCustoDto
 			{
-				Cod = cdc.Cod,
+				Id = cdc.Id,
 				Nome = cdc.Nome,
 				Obs = cdc.Obs,
 			};

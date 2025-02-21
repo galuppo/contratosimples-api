@@ -6,23 +6,42 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace contratosimples_api.Migrations
 {
     /// <inheritdoc />
-    public partial class AddFornecedor : Migration
+    public partial class Inicial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_Cliente",
-                table: "Cliente");
+            migrationBuilder.CreateTable(
+                name: "CentroDeCustos",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Nome = table.Column<string>(type: "text", nullable: false),
+                    Obs = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CentroDeCustos", x => x.Id);
+                });
 
-            migrationBuilder.RenameTable(
-                name: "Cliente",
-                newName: "Clientes");
-
-            migrationBuilder.AddPrimaryKey(
-                name: "PK_Clientes",
-                table: "Clientes",
-                column: "Id");
+            migrationBuilder.CreateTable(
+                name: "Clientes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    RazaoSocial = table.Column<string>(type: "text", nullable: false),
+                    NomeFantasia = table.Column<string>(type: "text", nullable: false),
+                    Cpf_cnpj = table.Column<string>(type: "text", nullable: false),
+                    Endereco = table.Column<string>(type: "text", nullable: false),
+                    InscricaoEstadual = table.Column<string>(type: "text", nullable: false),
+                    InscricaoMunicipal = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Clientes", x => x.Id);
+                });
 
             migrationBuilder.CreateTable(
                 name: "Fornecedores",
@@ -53,7 +72,7 @@ namespace contratosimples_api.Migrations
                     Cargo = table.Column<string>(type: "text", nullable: false),
                     Telefone = table.Column<string>(type: "text", nullable: false),
                     Email = table.Column<string>(type: "text", nullable: false),
-                    FornecedorId = table.Column<int>(type: "integer", nullable: true)
+                    FornecedorId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -62,7 +81,8 @@ namespace contratosimples_api.Migrations
                         name: "FK_ContatosFornecedores_Fornecedores_FornecedorId",
                         column: x => x.FornecedorId,
                         principalTable: "Fornecedores",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -75,23 +95,16 @@ namespace contratosimples_api.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "CentroDeCustos");
+
+            migrationBuilder.DropTable(
+                name: "Clientes");
+
+            migrationBuilder.DropTable(
                 name: "ContatosFornecedores");
 
             migrationBuilder.DropTable(
                 name: "Fornecedores");
-
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_Clientes",
-                table: "Clientes");
-
-            migrationBuilder.RenameTable(
-                name: "Clientes",
-                newName: "Cliente");
-
-            migrationBuilder.AddPrimaryKey(
-                name: "PK_Cliente",
-                table: "Cliente",
-                column: "Id");
         }
     }
 }
