@@ -10,6 +10,8 @@ namespace contratosimples_api.Application.Repositories
 		private GenericRepository<Cliente> clienteRepository;
 		private GenericRepository<ContatoFornecedor> contatoFornecedorRepository;
 		private GenericRepository<Fornecedor> fornecedorRepository;
+		private GenericRepository<Contrato> contratoRepository;
+		private GenericRepository<ContratoItem> contratoItemRepository;
 		private bool disposed = false;
 
 		public UnitOfWork(ApplicationDbContext dbContext):base()
@@ -46,7 +48,24 @@ namespace contratosimples_api.Application.Repositories
 					this.centroDeCustoRepository = new GenericRepository<CentroDeCusto>(this.dbContext);
 				return this.centroDeCustoRepository;
 			}
-
+		}
+		public GenericRepository<Contrato> ContratoRepository
+		{
+			get
+			{
+				if (this.contratoRepository == null)
+					this.contratoRepository = new GenericRepository<Contrato>(this.dbContext);
+				return this.contratoRepository;
+			}
+		}
+		public GenericRepository<ContratoItem> ContratoItemRepository
+		{
+			get
+			{
+				if (this.contratoItemRepository == null)
+					this.contratoItemRepository = new GenericRepository<ContratoItem>(this.dbContext);
+				return this.contratoItemRepository;
+			}
 		}
 
 		public async Task<int> SaveAsync()
@@ -56,8 +75,10 @@ namespace contratosimples_api.Application.Repositories
 
 		protected virtual void Dispose(bool disposing)
 		{
-			//if(!this.disposed && disposing)
-			//	this.dbContext.Dispose();
+			if(!this.disposed && disposing)
+			{
+				//	this.dbContext.Dispose();
+			}
 			this.disposed = true;
 		}
 

@@ -1,7 +1,5 @@
 ﻿using contratosimples_api.Application.Models.DTO.Fornecedor;
-using contratosimples_api.Application.Models.Entities;
 using contratosimples_api.Application.Repositories;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace contratosimples_api.Application.Controllers
@@ -37,13 +35,13 @@ namespace contratosimples_api.Application.Controllers
 			var fornecedores = await uow.FornecedorRepository.GetAsync();
 
 			var response = new List<FornecedorDto>();
-			foreach(var f in fornecedores)
+			foreach (var f in fornecedores)
 			{
 				response.Add(FornecedorDto.MapFromEntity(f));
 			}
 			return Ok(response);
 		}
-		
+
 		[HttpGet]
 		[Route("{idFornecedor:int}")]
 		public async Task<IActionResult> GetFornecedorById([FromRoute] int idFornecedor)
@@ -58,13 +56,13 @@ namespace contratosimples_api.Application.Controllers
 
 		[HttpPut]
 		[Route("{idFornecedor:int}")]
-		public async Task<IActionResult> UpdateFornecedorById([FromRoute]int idFornecedor, [FromBody] UpdateFornecedorRequestDto request)
+		public async Task<IActionResult> UpdateFornecedorById([FromRoute] int idFornecedor, [FromBody] UpdateFornecedorRequestDto request)
 		{
 			var forn = request.MapToEntity();
 			forn.Id = idFornecedor;
 
 			forn = await uow.FornecedorRepository.UpdateAsync(idFornecedor, forn);
-			if(forn == null) 
+			if (forn == null)
 				return NotFound();
 			foreach (var c in request.ContatosToAdd)
 			{
@@ -73,7 +71,7 @@ namespace contratosimples_api.Application.Controllers
 				await uow.ContatoFornecedorRepository.InsertAsync(contato);
 			}
 
-			foreach(var c in request.ContatosToUpdate)
+			foreach (var c in request.ContatosToUpdate)
 			{
 				var contato = await uow.ContatoFornecedorRepository.GetByIdAsync(c.Id);
 				if (contato == null)
@@ -98,7 +96,7 @@ namespace contratosimples_api.Application.Controllers
 
 		[HttpDelete]
 		[Route("{idFornecedor:int}")]
-		public async Task<IActionResult> DeleteFornecedorById([FromRoute]int idFornecedor)
+		public async Task<IActionResult> DeleteFornecedorById([FromRoute] int idFornecedor)
 		{
 			var forn = await uow.FornecedorRepository.GetAsync(f => f.Id == idFornecedor, null, "Contatos");
 			if (forn == null)

@@ -5,10 +5,12 @@ namespace contratosimples_api.Application.Data
 {
 	public class ApplicationDbContext : DbContext
 	{
-		public DbSet<CentroDeCusto> CentroDeCustos { get; set; }
-		public DbSet<Cliente> Clientes { get; set; }
-		public DbSet<Fornecedor> Fornecedores { get; set; }
-		public DbSet<ContatoFornecedor> ContatosFornecedores { get; set; }
+		public DbSet<CentroDeCusto> CentroDeCusto { get; set; }
+		public DbSet<Cliente> Cliente { get; set; }
+		public DbSet<Fornecedor> Fornecedor { get; set; }
+		public DbSet<ContatoFornecedor> ContatoFornecedor { get; set; }
+		public DbSet<Contrato> Contrato { get; set; }
+		public DbSet<ContratoItem> ContratoItem { get; set; }
 
 		public ApplicationDbContext(DbContextOptions options) : base(options)
 		{
