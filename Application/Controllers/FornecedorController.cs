@@ -1,11 +1,13 @@
 ﻿using contratosimples_api.Application.Models.DTO.Fornecedor;
 using contratosimples_api.Application.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace contratosimples_api.Application.Controllers
 {
 	[Route("api/[controller]")]
 	[ApiController]
+	[Authorize]
 	public class FornecedorController : ControllerBase
 	{
 
@@ -17,6 +19,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpPost]
+		[Authorize(Roles = "Writer")]
 		public async Task<IActionResult> CreateFornecedor([FromBody] CreateFornecedorRequestDto request)
 		{
 			var fornecedor = request.MapToEntity();
@@ -30,6 +33,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpGet]
+		[Authorize(Roles = "Reader")]
 		public async Task<IActionResult> GetAllFornecedor()
 		{
 			var fornecedores = await uow.FornecedorRepository.GetAsync();
@@ -43,6 +47,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpGet]
+		[Authorize(Roles = "Reader")]
 		[Route("{idFornecedor:int}")]
 		public async Task<IActionResult> GetFornecedorById([FromRoute] int idFornecedor)
 		{
@@ -55,6 +60,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpPut]
+		[Authorize(Roles = "Writer")]
 		[Route("{idFornecedor:int}")]
 		public async Task<IActionResult> UpdateFornecedorById([FromRoute] int idFornecedor, [FromBody] UpdateFornecedorRequestDto request)
 		{
@@ -95,6 +101,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpDelete]
+		[Authorize(Roles = "Writer")]
 		[Route("{idFornecedor:int}")]
 		public async Task<IActionResult> DeleteFornecedorById([FromRoute] int idFornecedor)
 		{

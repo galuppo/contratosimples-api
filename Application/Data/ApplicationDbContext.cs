@@ -12,8 +12,9 @@ namespace contratosimples_api.Application.Data
 		public DbSet<Contrato> Contrato { get; set; }
 		public DbSet<ContratoItem> ContratoItem { get; set; }
 
-		public ApplicationDbContext(DbContextOptions options) : base(options)
+		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
 		{
+			AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 		}
 
 	}

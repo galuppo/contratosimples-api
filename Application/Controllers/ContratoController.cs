@@ -2,12 +2,14 @@
 using contratosimples_api.Application.Models.DTO.ContratoItem;
 using contratosimples_api.Application.Models.Entities;
 using contratosimples_api.Application.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace contratosimples_api.Application.Controllers
 {
 	[Route("api/[controller]")]
 	[ApiController]
+	[Authorize]
 	public class ContratoController : ControllerBase
 	{
 		private readonly UnitOfWork uow;
@@ -37,6 +39,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpPost]
+		[Authorize(Roles = "Writer")]
 		public async Task<IActionResult> CreateContrato([FromBody] CreateContratoRequestDto request)
 		{
 			var centroDeCusto = await uow.CentroDeCustoRepository.GetByIdAsync(request.CentroDeCustoId);
@@ -69,6 +72,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpGet]
+		[Authorize(Roles = "Reader")]
 		public async Task<IActionResult> GetAllContrato()
 		{
 			var contratos = await uow.ContratoRepository.GetAsync(null,null,"CentroDeCusto,Fornecedor,Cliente");
@@ -80,6 +84,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpGet]
+		[Authorize(Roles = "Reader")]
 		[Route("{idContrato:int}")]
 		public async Task<IActionResult> GetContratoById([FromRoute] int idContrato)
 		{
@@ -93,6 +98,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpGet]
+		[Authorize(Roles = "Reader")]
 		[Route("{idContrato:int}/itens")]
 		public async Task<IActionResult> GetItensContrato([FromRoute] int idContrato)
 		{
@@ -106,6 +112,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpPut]
+		[Authorize(Roles = "Writer")]
 		[Route("{idContrato:int}")]
 		public async Task<IActionResult> UpdateContrato([FromRoute] int idContrato, [FromBody] UpdateContratoRequestDto request)
 		{
@@ -161,8 +168,11 @@ namespace contratosimples_api.Application.Controllers
 				contratoItem.ValorUnit = item.ValorUnit;
 				contratoItem.ValorTotal = item.ValorTotal;
 
-				if((item.GrupoId != null) || (contratoItem.Grupo.Id != item.GrupoId))
+				if (item.GrupoId != null)
 					contratoItem.Grupo = await uow.ContratoItemRepository.GetByIdAsync(item.GrupoId);
+				else
+					contratoItem.Grupo = null;
+
 
 				await uow.ContratoItemRepository.UpdateAsync(contratoItem.Id, contratoItem);
 			}
@@ -185,12 +195,13 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpDelete]
+		[Authorize(Roles = "Writer")]
 		[Route("{idContrato:int}")]
 		public async Task<IActionResult> DeleteContrato([FromRoute] int idContrato)
 		{
 			await uow.ContratoRepository.DeleteAsync(idContrato);
 			await uow.SaveAsync();
-			return Ok();
+			return Ok(idContrato);
 		}
 	
 	}

@@ -1,5 +1,6 @@
 ﻿using contratosimples_api.Application.Models.DTO.CentroDeCusto;
 using contratosimples_api.Application.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace contratosimples_api.Application.Controllers
@@ -7,6 +8,7 @@ namespace contratosimples_api.Application.Controllers
 
 	[Route("api/[controller]")]
 	[ApiController]
+	[Authorize]
 	public class CentroDeCustoController : ControllerBase
 	{
 		private readonly UnitOfWork uow;
@@ -17,6 +19,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpPost]
+		[Authorize(Roles = "Writer")]
 		public async Task<IActionResult> CreateCentroDeCusto([FromBody] CreateCentroDeCustoRequestDto request)
 		{
 			var centroDeCusto = request.MapToEntity();
@@ -30,6 +33,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpGet]
+		[Authorize(Roles = "Reader")]
 		public async Task<IActionResult> GetAllCentroDeCusto()
 		{
 			var centroDeCustos = await uow.CentroDeCustoRepository.GetAsync();
@@ -44,6 +48,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpGet]
+		[Authorize(Roles = "Reader")]
 		[Route("{idCentroDeCusto:int}")]
 		public async Task<IActionResult> GetCentroDeCustoById([FromRoute] int idCentroDeCusto)
 		{
@@ -58,6 +63,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpPut]
+		[Authorize(Roles = "Writer")]
 		[Route("{idCentroDeCusto:int}")]
 		public async Task<IActionResult> UpdateCentroDeCustoById([FromRoute] int idCentroDeCusto, [FromBody] UpdateCentroDeCustoRequestDto request)
 		{
@@ -78,6 +84,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpDelete]
+		[Authorize(Roles = "Writer")]
 		[Route("{idCentroDeCusto:int}")]
 		public async Task<IActionResult> DeleteCentroDeCusto([FromRoute] int idCentroDeCusto)
 		{
