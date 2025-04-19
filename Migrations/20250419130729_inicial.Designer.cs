@@ -12,7 +12,7 @@ using contratosimples_api.Application.Data;
 namespace contratosimples_api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250221124834_inicial")]
+    [Migration("20250419130729_inicial")]
     partial class inicial
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace contratosimples_api.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.0")
+                .HasAnnotation("ProductVersion", "9.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -132,10 +132,10 @@ namespace contratosimples_api.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("DtFim")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime>("DtInicio")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("FornecedorId")
                         .HasColumnType("integer");

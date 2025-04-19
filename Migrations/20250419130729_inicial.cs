@@ -95,8 +95,8 @@ namespace contratosimples_api.Migrations
                     CentroDeCustoId = table.Column<int>(type: "integer", nullable: false),
                     ClienteId = table.Column<int>(type: "integer", nullable: false),
                     FornecedorId = table.Column<int>(type: "integer", nullable: false),
-                    DtInicio = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    DtFim = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    DtInicio = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    DtFim = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     Obs = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>

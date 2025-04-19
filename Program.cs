@@ -15,10 +15,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-{
-	options.UseNpgsql(builder.Configuration.GetConnectionString("ContratoSimplesConnectionString"));
-});
+//builder.Services.AddDbContext<ApplicationDbContext>(options =>
+//{
+//	options.UseNpgsql(builder.Configuration.GetConnectionString("ContratoSimplesConnectionString"));
+//});
 
 builder.Services.AddDbContext<AuthDbContext>(options =>
 {

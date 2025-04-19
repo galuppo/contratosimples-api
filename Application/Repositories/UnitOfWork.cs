@@ -1,11 +1,13 @@
 ﻿using contratosimples_api.Application.Data;
 using contratosimples_api.Application.Models.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace contratosimples_api.Application.Repositories
 {
 	public class UnitOfWork : IDisposable
 	{
 		private readonly ApplicationDbContext dbContext;
+		private readonly IConfiguration config;
 		private GenericRepository<CentroDeCusto> centroDeCustoRepository;
 		private GenericRepository<Cliente> clienteRepository;
 		private GenericRepository<ContatoFornecedor> contatoFornecedorRepository;
@@ -14,10 +16,21 @@ namespace contratosimples_api.Application.Repositories
 		private GenericRepository<ContratoItem> contratoItemRepository;
 		private bool disposed = false;
 
-		public UnitOfWork(ApplicationDbContext dbContext):base()
+		public UnitOfWork(IConfiguration config) :base()
 		{
-			//TODO: implementar aqui a criação de dbContext
-			this.dbContext = dbContext;
+			this.config = config;
+
+			var connectionString = config.GetConnectionString("ContratoSimplesConnectionString");
+
+			if (connectionString == null)
+				throw new Exception("Connection string not found!");
+
+			connectionString = connectionString.Replace("%dbcliente%", "contratoSimples");
+
+			var builder = new DbContextOptionsBuilder<ApplicationDbContext>();
+			builder.UseNpgsql(connectionString);
+
+			this.dbContext = new ApplicationDbContext(builder.Options);
 		}
 
 		public GenericRepository<Fornecedor> FornecedorRepository {
@@ -77,7 +90,7 @@ namespace contratosimples_api.Application.Repositories
 		{
 			if(!this.disposed && disposing)
 			{
-				//	this.dbContext.Dispose();
+				this.dbContext.Dispose();
 			}
 			this.disposed = true;
 		}
