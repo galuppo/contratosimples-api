@@ -1,5 +1,6 @@
 ﻿using contratosimples_api.Application.Models.DTO.Cliente;
 using contratosimples_api.Application.Repositories;
+using contratosimples_api.Common.Models.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,15 +12,15 @@ namespace contratosimples_api.Application.Controllers
 	public class ClienteController : ControllerBase
 	{
 
-		private readonly UnitOfWork uow;
+		private readonly ContratoSimplesUnitOfWork uow;
 
-		public ClienteController(UnitOfWork uow)
+		public ClienteController(ContratoSimplesUnitOfWork uow)
 		{
 			this.uow = uow;
 		}
 
 		[HttpPost]
-		[Authorize(Roles = "Writer")]
+		[Authorize(Roles = UsuarioRole.WRITER_ROLE)]
 		public async Task<IActionResult> CreateCliente([FromBody] CreateClienteRequestDto request)
 		{
 			var cliente = request.MapToEntity();
@@ -33,7 +34,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpGet]
-		[Authorize(Roles = "Reader")]
+		[Authorize(Roles = UsuarioRole.READER_ROLE)]
 		public async Task<IActionResult> GetAllCliente()
 		{
 			var clientes = await uow.ClienteRepository.GetAsync();
@@ -47,7 +48,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpGet]
-		[Authorize(Roles = "Reader")]
+		[Authorize(Roles = UsuarioRole.READER_ROLE)]
 		[Route("{idCliente:int}")]
 		public async Task<IActionResult> GetClienteById([FromRoute] int idCliente)
 		{
@@ -63,7 +64,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpPut]
-		[Authorize(Roles = "Writer")]
+		[Authorize(Roles = UsuarioRole.WRITER_ROLE)]
 		[Route("{idCliente:int}")]
 		public async Task<IActionResult> UpdateClienteById([FromRoute] int idCliente, [FromBody] UpdateClienteRequestDto request)
 		{
@@ -79,7 +80,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpDelete]
-		[Authorize(Roles = "Writer")]
+		[Authorize(Roles = UsuarioRole.WRITER_ROLE)]
 		[Route("{idCliente:int}")]
 		public async Task<IActionResult> DeleteCliente([FromRoute] int idCliente)
 		{

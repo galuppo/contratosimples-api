@@ -9,10 +9,10 @@ using contratosimples_api.Application.Data;
 
 #nullable disable
 
-namespace contratosimples_api.Migrations
+namespace contratosimples_api.Migrations.ContratoSimplesDb
 {
-    [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250419130729_inicial")]
+    [DbContext(typeof(ContratoSimplesDbContext))]
+    [Migration("20250421135813_inicial")]
     partial class inicial
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace contratosimples_api.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.3")
+                .HasAnnotation("ProductVersion", "9.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);

@@ -1,5 +1,6 @@
 ﻿using contratosimples_api.Application.Models.DTO.CentroDeCusto;
 using contratosimples_api.Application.Repositories;
+using contratosimples_api.Common.Models.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,15 +12,15 @@ namespace contratosimples_api.Application.Controllers
 	[Authorize]
 	public class CentroDeCustoController : ControllerBase
 	{
-		private readonly UnitOfWork uow;
+		private readonly ContratoSimplesUnitOfWork uow;
 
-		public CentroDeCustoController(UnitOfWork uow)
+		public CentroDeCustoController(ContratoSimplesUnitOfWork uow)
 		{
 			this.uow = uow;
 		}
 
 		[HttpPost]
-		[Authorize(Roles = "Writer")]
+		[Authorize(Roles = UsuarioRole.WRITER_ROLE)]
 		public async Task<IActionResult> CreateCentroDeCusto([FromBody] CreateCentroDeCustoRequestDto request)
 		{
 			var centroDeCusto = request.MapToEntity();
@@ -33,7 +34,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpGet]
-		[Authorize(Roles = "Reader")]
+		[Authorize(Roles = UsuarioRole.READER_ROLE)]
 		public async Task<IActionResult> GetAllCentroDeCusto()
 		{
 			var centroDeCustos = await uow.CentroDeCustoRepository.GetAsync();
@@ -48,7 +49,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpGet]
-		[Authorize(Roles = "Reader")]
+		[Authorize(Roles = UsuarioRole.READER_ROLE)]
 		[Route("{idCentroDeCusto:int}")]
 		public async Task<IActionResult> GetCentroDeCustoById([FromRoute] int idCentroDeCusto)
 		{
@@ -63,7 +64,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpPut]
-		[Authorize(Roles = "Writer")]
+		[Authorize(Roles = UsuarioRole.WRITER_ROLE)]
 		[Route("{idCentroDeCusto:int}")]
 		public async Task<IActionResult> UpdateCentroDeCustoById([FromRoute] int idCentroDeCusto, [FromBody] UpdateCentroDeCustoRequestDto request)
 		{
@@ -84,7 +85,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpDelete]
-		[Authorize(Roles = "Writer")]
+		[Authorize(Roles = UsuarioRole.WRITER_ROLE)]
 		[Route("{idCentroDeCusto:int}")]
 		public async Task<IActionResult> DeleteCentroDeCusto([FromRoute] int idCentroDeCusto)
 		{

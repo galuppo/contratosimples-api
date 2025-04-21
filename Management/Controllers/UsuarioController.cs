@@ -1,61 +1,51 @@
-﻿using contratosimples_api.Application.Models.DTO.Usuario;
-using contratosimples_api.Application.Repositories;
+﻿using contratosimples_api.Common.Models.Entities;
+using contratosimples_api.Management.Models.DTO.Usuario;
+using contratosimples_api.Management.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-namespace contratosimples_api.Application.Controllers
+namespace contratosimples_api.Management.Controllers
 {
 	[Route("api/[controller]")]
 	[ApiController]
 	public class UsuarioController : ControllerBase
 	{
-		private readonly UserManager<IdentityUser> userManager;
+		private readonly UserManager<Usuario> userManager;
 		private readonly TokenRepository tokenRepository;
 
-		public UsuarioController(UserManager<IdentityUser> userManager, TokenRepository tokenRepository)
-		{
+		public UsuarioController(UserManager<Usuario> userManager, TokenRepository tokenRepository) {
 			this.userManager = userManager;
 			this.tokenRepository = tokenRepository;
 		}
 
 		[HttpPost]
-		[Authorize(Roles = "Writer")]
+		[Authorize(Roles = UsuarioRole.WRITER_ROLE)]
 		[Route("Register")]
-		public async Task<IActionResult> Register([FromBody] UsuarioRegisterDto request)
-		{
+		public async Task<IActionResult> Register([FromBody] UsuarioRegisterDto request) {
 			//Create IdentityUser object
-			var user = new IdentityUser
-			{
+			var user = new Usuario {
 				UserName = request.Email?.Trim(),
 				Email = request.Email?.Trim()
 			};
 
 			var identityResult = await userManager.CreateAsync(user, request.Password);
 
-			if (identityResult.Succeeded) 
-			{
-				identityResult = await userManager.AddToRoleAsync(user, "Reader");
+			if (identityResult.Succeeded) {
+				identityResult = await userManager.AddToRoleAsync(user, UsuarioRole.READER_ROLE);
 				if (identityResult.Succeeded)
 					return Ok();
-				else
-				{
-					if (identityResult.Errors.Any())
-					{
-						foreach (var error in identityResult.Errors)
-						{
+				else {
+					if (identityResult.Errors.Any()) {
+						foreach (var error in identityResult.Errors) {
 							ModelState.AddModelError("", error.Description);
 						}
 					}
 				}
-			} 
-			else
-			{
-				if (identityResult.Errors.Any())
-				{
-					foreach (var error in identityResult.Errors)
-					{
+			} else {
+				if (identityResult.Errors.Any()) {
+					foreach (var error in identityResult.Errors) {
 						ModelState.AddModelError("", error.Description);
 					}
 				}
@@ -66,24 +56,20 @@ namespace contratosimples_api.Application.Controllers
 		}
 		[HttpPost]
 		[Route("Login")]
-		public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
-		{
+		public async Task<IActionResult> Login([FromBody] LoginRequestDto request) {
 			//check email
 			var identityUser = await userManager.FindByEmailAsync(request.Email);
-			
+
 			//check password
-			if(identityUser is not null)
-			{
+			if (identityUser is not null) {
 				var checkPassResult = await userManager.CheckPasswordAsync(identityUser, request.Password);
 
-				if(checkPassResult)
-				{
+				if (checkPassResult) {
 					var roles = await userManager.GetRolesAsync(identityUser);
 
 					var token = tokenRepository.CreateJwtToken(identityUser, roles);
 
-					var response = new LoginResponseDto()
-					{
+					var response = new LoginResponseDto() {
 						Email = request.Email,
 						Roles = roles.ToList(),
 						Token = token
@@ -99,5 +85,5 @@ namespace contratosimples_api.Application.Controllers
 		}
 	}
 
-	
+
 }

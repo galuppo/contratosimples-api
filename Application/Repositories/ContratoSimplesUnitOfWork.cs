@@ -1,36 +1,33 @@
 ﻿using contratosimples_api.Application.Data;
 using contratosimples_api.Application.Models.Entities;
+using contratosimples_api.Common.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace contratosimples_api.Application.Repositories
 {
-	public class UnitOfWork : IDisposable
+	public class ContratoSimplesUnitOfWork : GenericUnitOfWork
 	{
-		private readonly ApplicationDbContext dbContext;
-		private readonly IConfiguration config;
-		private GenericRepository<CentroDeCusto> centroDeCustoRepository;
-		private GenericRepository<Cliente> clienteRepository;
-		private GenericRepository<ContatoFornecedor> contatoFornecedorRepository;
-		private GenericRepository<Fornecedor> fornecedorRepository;
-		private GenericRepository<Contrato> contratoRepository;
-		private GenericRepository<ContratoItem> contratoItemRepository;
-		private bool disposed = false;
+		private GenericRepository<CentroDeCusto>? centroDeCustoRepository;
+		private GenericRepository<Cliente>? clienteRepository;
+		private GenericRepository<ContatoFornecedor>? contatoFornecedorRepository;
+		private GenericRepository<Fornecedor>? fornecedorRepository;
+		private GenericRepository<Contrato>? contratoRepository;
+		private GenericRepository<ContratoItem>? contratoItemRepository;
 
-		public UnitOfWork(IConfiguration config) :base()
+		public ContratoSimplesUnitOfWork(IConfiguration config) :base(config)
 		{
-			this.config = config;
-
 			var connectionString = config.GetConnectionString("ContratoSimplesConnectionString");
 
 			if (connectionString == null)
 				throw new Exception("Connection string not found!");
 
-			connectionString = connectionString.Replace("%dbcliente%", "contratoSimples");
+			connectionString = connectionString.Replace("%dbcliente%", "clienteContratoSimples");
 
-			var builder = new DbContextOptionsBuilder<ApplicationDbContext>();
+			var builder = new DbContextOptionsBuilder<ContratoSimplesDbContext>();
 			builder.UseNpgsql(connectionString);
 
-			this.dbContext = new ApplicationDbContext(builder.Options);
+			this.dbContext = new ContratoSimplesDbContext(builder.Options);
+			this.dbContext.Database.Migrate();
 		}
 
 		public GenericRepository<Fornecedor> FornecedorRepository {
@@ -81,24 +78,5 @@ namespace contratosimples_api.Application.Repositories
 			}
 		}
 
-		public async Task<int> SaveAsync()
-		{
-			return await this.dbContext.SaveChangesAsync();
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if(!this.disposed && disposing)
-			{
-				this.dbContext.Dispose();
-			}
-			this.disposed = true;
-		}
-
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
 	}
 }

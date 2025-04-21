@@ -1,5 +1,8 @@
 using contratosimples_api.Application.Data;
 using contratosimples_api.Application.Repositories;
+using contratosimples_api.Common.Models.Entities;
+using contratosimples_api.Management.Data;
+using contratosimples_api.Management.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -15,23 +18,23 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 
-//builder.Services.AddDbContext<ApplicationDbContext>(options =>
-//{
-//	options.UseNpgsql(builder.Configuration.GetConnectionString("ContratoSimplesConnectionString"));
-//});
-
-builder.Services.AddDbContext<AuthDbContext>(options =>
-{
-	options.UseNpgsql(builder.Configuration.GetConnectionString("ContratoSimplesAuthConnectionString"));
+builder.Services.AddDbContext<ContratoSimplesDbContext>(options => {
+	options.UseNpgsql(builder.Configuration.GetConnectionString("ContratoSimplesConnectionString"));
 });
 
-builder.Services.AddScoped<UnitOfWork>();
+builder.Services.AddDbContext<AppManagementDbContext>(options =>
+{
+	options.UseNpgsql(builder.Configuration.GetConnectionString("AppManagementConnectionString"));
+});
+
+builder.Services.AddScoped<ContratoSimplesUnitOfWork>();
+builder.Services.AddScoped<AppManagementUnitOfWork>();
 builder.Services.AddScoped<TokenRepository>();
 
-builder.Services.AddIdentityCore<IdentityUser>()
+builder.Services.AddIdentityCore<Usuario>()
 	.AddRoles<IdentityRole>()
-	.AddTokenProvider<DataProtectorTokenProvider<IdentityUser>>("ContratoSimples")
-	.AddEntityFrameworkStores<AuthDbContext>()
+	.AddTokenProvider<DataProtectorTokenProvider<Usuario>>("ContratoSimples")
+	.AddEntityFrameworkStores<AppManagementDbContext>()
 	.AddDefaultTokenProviders();
 
 builder.Services.Configure<IdentityOptions>(options =>

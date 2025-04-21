@@ -1,5 +1,6 @@
 ﻿using contratosimples_api.Application.Models.DTO.Fornecedor;
 using contratosimples_api.Application.Repositories;
+using contratosimples_api.Common.Models.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,15 +12,15 @@ namespace contratosimples_api.Application.Controllers
 	public class FornecedorController : ControllerBase
 	{
 
-		private readonly UnitOfWork uow;
+		private readonly ContratoSimplesUnitOfWork uow;
 
-		public FornecedorController(UnitOfWork uow)
+		public FornecedorController(ContratoSimplesUnitOfWork uow)
 		{
 			this.uow = uow;
 		}
 
 		[HttpPost]
-		[Authorize(Roles = "Writer")]
+		[Authorize(Roles = UsuarioRole.WRITER_ROLE)]
 		public async Task<IActionResult> CreateFornecedor([FromBody] CreateFornecedorRequestDto request)
 		{
 			var fornecedor = request.MapToEntity();
@@ -33,7 +34,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpGet]
-		[Authorize(Roles = "Reader")]
+		[Authorize(Roles = UsuarioRole.READER_ROLE)]
 		public async Task<IActionResult> GetAllFornecedor()
 		{
 			var fornecedores = await uow.FornecedorRepository.GetAsync();
@@ -47,7 +48,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpGet]
-		[Authorize(Roles = "Reader")]
+		[Authorize(Roles = UsuarioRole.READER_ROLE)]
 		[Route("{idFornecedor:int}")]
 		public async Task<IActionResult> GetFornecedorById([FromRoute] int idFornecedor)
 		{
@@ -60,7 +61,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpPut]
-		[Authorize(Roles = "Writer")]
+		[Authorize(Roles = UsuarioRole.WRITER_ROLE)]
 		[Route("{idFornecedor:int}")]
 		public async Task<IActionResult> UpdateFornecedorById([FromRoute] int idFornecedor, [FromBody] UpdateFornecedorRequestDto request)
 		{
@@ -101,7 +102,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpDelete]
-		[Authorize(Roles = "Writer")]
+		[Authorize(Roles = UsuarioRole.WRITER_ROLE)]
 		[Route("{idFornecedor:int}")]
 		public async Task<IActionResult> DeleteFornecedorById([FromRoute] int idFornecedor)
 		{

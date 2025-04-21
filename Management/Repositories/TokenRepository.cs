@@ -4,19 +4,17 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace contratosimples_api.Application.Repositories
+namespace contratosimples_api.Management.Repositories
 {
 	public class TokenRepository
 	{
 		private readonly IConfiguration config;
 
-		public TokenRepository(IConfiguration config)
-		{
+		public TokenRepository(IConfiguration config) {
 			this.config = config;
 		}
 
-		public string CreateJwtToken(IdentityUser user, IList<string> roles)
-		{
+		public string CreateJwtToken(IdentityUser user, IList<string> roles) {
 			//Create claims
 			var claims = new List<Claim>
 			{
@@ -31,8 +29,8 @@ namespace contratosimples_api.Application.Repositories
 			var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
 			var token = new JwtSecurityToken(
-				issuer : config["Jwt:Issuer"],
-				audience : config["Jwt:Audience"],
+				issuer: config["Jwt:Issuer"],
+				audience: config["Jwt:Audience"],
 				claims: claims,
 				expires: DateTime.Now.AddMinutes(15),
 				signingCredentials: credentials);

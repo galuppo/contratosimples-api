@@ -1,66 +1,58 @@
-﻿using contratosimples_api.Application.Data;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
-namespace contratosimples_api.Application.Repositories
+namespace contratosimples_api.Common.Repositories
 {
 	public class GenericRepository<TEntity> where TEntity : class
 	{
-		protected ApplicationDbContext dbContext;
+		protected DbContext dbContext;
 		protected DbSet<TEntity> dbSet;
 
-		public GenericRepository(ApplicationDbContext dbContext) 
-		{
+		public GenericRepository(DbContext dbContext) {
 			this.dbContext = dbContext;
-			this.dbSet = this.dbContext.Set<TEntity>();
+			dbSet = this.dbContext.Set<TEntity>();
 		}
 
 		public virtual async Task<IEnumerable<TEntity>> GetAsync(
 			Expression<Func<TEntity, bool>> filter = null,
 			Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
-			string includeProperties = "")
-		{
+			string includeProperties = "") {
 			IQueryable<TEntity> query = dbSet;
 
-			if (filter != null) 
+			if (filter != null)
 				query = query.Where(filter);
 
-			foreach (var includeProperty in includeProperties.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries))
+			foreach (var includeProperty in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
 				query = query.Include(includeProperty);
 
-			if(orderBy != null)
+			if (orderBy != null)
 				return await orderBy(query).ToListAsync();
 			else
 				return await query.ToListAsync();
 		}
 
-		public virtual async Task<TEntity?> GetByIdAsync(object id)
-		{
+		public virtual async Task<TEntity?> GetByIdAsync(object id) {
 			return await dbSet.FindAsync(id);
 		}
 
-		public virtual async Task<TEntity> InsertAsync(TEntity entity)
-		{
+		public virtual async Task<TEntity> InsertAsync(TEntity entity) {
 			await dbSet.AddAsync(entity);
 			return entity;
 		}
-		public virtual async Task<TEntity?> DeleteAsync(object id)
-		{
+		public virtual async Task<TEntity?> DeleteAsync(object id) {
 			TEntity? entity = await dbSet.FindAsync(id);
 			if (entity == null)
 				return null;
 			return Delete(entity);
-			
+
 		}
-		protected virtual TEntity Delete(TEntity entity)
-		{
-			if(dbContext.Entry(entity).State == EntityState.Detached)
+		protected virtual TEntity Delete(TEntity entity) {
+			if (dbContext.Entry(entity).State == EntityState.Detached)
 				dbSet.Attach(entity);
 			dbSet.Remove(entity);
 			return entity;
 		}
-		public virtual async Task<TEntity?> UpdateAsync(object id, TEntity entity)
-		{
+		public virtual async Task<TEntity?> UpdateAsync(object id, TEntity entity) {
 			var ent = await dbSet.FindAsync(id);
 			if (ent == null) return null;
 			if (dbContext.Entry(ent).State == EntityState.Detached)

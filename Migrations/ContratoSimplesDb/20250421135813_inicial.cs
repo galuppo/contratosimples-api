@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace contratosimples_api.Migrations
+namespace contratosimples_api.Migrations.ContratoSimplesDb
 {
     /// <inheritdoc />
     public partial class inicial : Migration

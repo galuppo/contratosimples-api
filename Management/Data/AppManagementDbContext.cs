@@ -1,48 +1,58 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using contratosimples_api.Common.Models.Entities;
+using contratosimples_api.Management.Models.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace contratosimples_api.Application.Data
+namespace contratosimples_api.Management.Data
 {
-	public class AuthDbContext : IdentityDbContext
+	public class AppManagementDbContext : IdentityDbContext
 	{
-		public AuthDbContext(DbContextOptions<AuthDbContext> options) : base(options)
-		{
+		public DbSet<AppCliente> AppCliente { get; set; }
+
+		public AppManagementDbContext(DbContextOptions<AppManagementDbContext> options) : base(options) {
+			base.Database.Migrate();
 		}
 
-		protected override void OnModelCreating(ModelBuilder builder)
-		{
+		protected override void OnModelCreating(ModelBuilder builder) {
 			base.OnModelCreating(builder);
 
 			var readerRoleId = "9e9a850f-5dd0-4969-b57c-c4d9fc2cc739";
 			var writerRoleId = "9671406d-f6c4-4aea-8e85-f55e37c77d7d";
+			var appAdminRoleId = "5f5d6c20-6612-4f03-bab3-5ab047a3d572";
 
 			//Create reader and writer roles
-			var roles = new List<IdentityRole>
+			var roles = new List<UsuarioRole>
 			{
-				new IdentityRole()
+				new UsuarioRole()
 				{
 					Id = readerRoleId,
-					Name = "Reader",
-					NormalizedName = "READER",
+					Name = UsuarioRole.READER_ROLE,
+					NormalizedName = UsuarioRole.READER_ROLE.ToUpper(),
 					ConcurrencyStamp = readerRoleId,
 				},
-				new IdentityRole()
+				new UsuarioRole()
 				{
 					Id = writerRoleId,
-					Name = "Writer",
-					NormalizedName = "WRITER",
+					Name = UsuarioRole.WRITER_ROLE,
+					NormalizedName = UsuarioRole.WRITER_ROLE.ToUpper(),
 					ConcurrencyStamp = writerRoleId
+				},
+				new UsuarioRole()
+				{
+					Id = appAdminRoleId,
+					Name = UsuarioRole.APP_ADMIN,
+					NormalizedName = UsuarioRole.APP_ADMIN.ToUpper(),
+					ConcurrencyStamp = appAdminRoleId
 				}
 			};
 
 			//seed the roles
-			builder.Entity<IdentityRole>().HasData(roles);
+			builder.Entity<UsuarioRole>().HasData(roles);
 
 			//create an admin user
 			var adminUserId = "8a1b5b33-30d1-4c9c-b16c-a76fe078379";
-			var admin = new IdentityUser()
-			{
+			var admin = new Usuario() {
 				Id = adminUserId,
 				UserName = "admin@contratosimples.com.br",
 				NormalizedUserName = "admin@contratosimples.com.br".ToUpper(),
@@ -63,7 +73,7 @@ namespace contratosimples_api.Application.Data
 			//admin.PasswordHash = new PasswordHasher<IdentityUser>().HashPassword(admin, "Admin@123");
 			admin.PasswordHash = "AQAAAAIAAYagAAAAEI6qrEVRsGPLoHesHn+gXTEW6TgXyCIDSrAzOTendZ4GQE84jSD3NIgkp3S8VzUlMA==";
 
-			builder.Entity<IdentityUser>().HasData(admin);
+			builder.Entity<Usuario>().HasData(admin);
 
 
 			//assign roles to admin

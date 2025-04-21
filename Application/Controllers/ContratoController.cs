@@ -2,6 +2,7 @@
 using contratosimples_api.Application.Models.DTO.ContratoItem;
 using contratosimples_api.Application.Models.Entities;
 using contratosimples_api.Application.Repositories;
+using contratosimples_api.Common.Models.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,9 +13,9 @@ namespace contratosimples_api.Application.Controllers
 	[Authorize]
 	public class ContratoController : ControllerBase
 	{
-		private readonly UnitOfWork uow;
+		private readonly ContratoSimplesUnitOfWork uow;
 
-		public ContratoController(UnitOfWork uow)
+		public ContratoController(ContratoSimplesUnitOfWork uow)
 		{
 			this.uow = uow;
 		}
@@ -39,7 +40,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpPost]
-		[Authorize(Roles = "Writer")]
+		[Authorize(Roles = UsuarioRole.WRITER_ROLE)]
 		public async Task<IActionResult> CreateContrato([FromBody] CreateContratoRequestDto request)
 		{
 			var centroDeCusto = await uow.CentroDeCustoRepository.GetByIdAsync(request.CentroDeCustoId);
@@ -72,7 +73,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpGet]
-		[Authorize(Roles = "Reader")]
+		[Authorize(Roles = UsuarioRole.READER_ROLE)]
 		public async Task<IActionResult> GetAllContrato()
 		{
 			var contratos = await uow.ContratoRepository.GetAsync(null,null,"CentroDeCusto,Fornecedor,Cliente");
@@ -84,7 +85,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpGet]
-		[Authorize(Roles = "Reader")]
+		[Authorize(Roles = UsuarioRole.READER_ROLE)]
 		[Route("{idContrato:int}")]
 		public async Task<IActionResult> GetContratoById([FromRoute] int idContrato)
 		{
@@ -98,7 +99,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpGet]
-		[Authorize(Roles = "Reader")]
+		[Authorize(Roles = UsuarioRole.READER_ROLE)]
 		[Route("{idContrato:int}/itens")]
 		public async Task<IActionResult> GetItensContrato([FromRoute] int idContrato)
 		{
@@ -112,7 +113,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpPut]
-		[Authorize(Roles = "Writer")]
+		[Authorize(Roles = UsuarioRole.WRITER_ROLE)]
 		[Route("{idContrato:int}")]
 		public async Task<IActionResult> UpdateContrato([FromRoute] int idContrato, [FromBody] UpdateContratoRequestDto request)
 		{
@@ -195,7 +196,7 @@ namespace contratosimples_api.Application.Controllers
 		}
 
 		[HttpDelete]
-		[Authorize(Roles = "Writer")]
+		[Authorize(Roles = UsuarioRole.WRITER_ROLE)]
 		[Route("{idContrato:int}")]
 		public async Task<IActionResult> DeleteContrato([FromRoute] int idContrato)
 		{

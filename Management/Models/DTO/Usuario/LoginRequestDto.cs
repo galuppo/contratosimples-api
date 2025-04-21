@@ -1,4 +1,4 @@
-﻿namespace contratosimples_api.Application.Models.DTO.Usuario
+﻿namespace contratosimples_api.Management.Models.DTO.Usuario
 {
 	public class LoginRequestDto
 	{

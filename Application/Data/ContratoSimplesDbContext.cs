@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace contratosimples_api.Application.Data
 {
-	public class ApplicationDbContext : DbContext
+	public class ContratoSimplesDbContext : DbContext
 	{
 		public DbSet<CentroDeCusto> CentroDeCusto { get; set; }
 		public DbSet<Cliente> Cliente { get; set; }
@@ -12,7 +12,7 @@ namespace contratosimples_api.Application.Data
 		public DbSet<Contrato> Contrato { get; set; }
 		public DbSet<ContratoItem> ContratoItem { get; set; }
 
-		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+		public ContratoSimplesDbContext(DbContextOptions<ContratoSimplesDbContext> options) : base(options)
 		{
 			AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 		}
