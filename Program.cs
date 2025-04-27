@@ -1,8 +1,10 @@
-using contratosimples_api.Application.Data;
-using contratosimples_api.Application.Repositories;
-using contratosimples_api.Common.Models.Entities;
-using contratosimples_api.Management.Data;
-using contratosimples_api.Management.Repositories;
+using contratosimples_api.Application.Core.Data;
+using contratosimples_api.Application.Core.Repositories;
+using contratosimples_api.Application.Management.Data;
+using contratosimples_api.Application.Management.Middlewares;
+using contratosimples_api.Application.Management.Models.Entities;
+using contratosimples_api.Application.Management.Repositories;
+using contratosimples_api.Application.Management.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +32,7 @@ builder.Services.AddDbContext<AppManagementDbContext>(options =>
 builder.Services.AddScoped<ContratoSimplesUnitOfWork>();
 builder.Services.AddScoped<AppManagementUnitOfWork>();
 builder.Services.AddScoped<TokenRepository>();
+builder.Services.AddScoped<TenantService>();
 
 builder.Services.AddIdentityCore<Usuario>()
 	.AddRoles<IdentityRole>()
@@ -86,6 +89,7 @@ app.UseCors(options =>
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseTenantAuthorization();
 
 app.MapControllers();
 
