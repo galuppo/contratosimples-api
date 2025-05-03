@@ -24,12 +24,12 @@ namespace contratosimples_api.Application.Management.Middlewares
 		}
 
 		private bool NeedTenantAuthorization(HttpContext httpContext) {
-			var requestPath = httpContext.Request.Path.Value;
+			var requestPath = httpContext.Request.Path.Value.ToLower();
 
 			//apenas os seguintes controllers não precisam de autorização baseada no tenant
-			if (requestPath.StartsWith("/api/Usuario"))
+			if (requestPath.StartsWith("/api/Usuario".ToLower()))
 				return false;
-			if(requestPath.StartsWith("/api/Tenant"))
+			if(requestPath.StartsWith("/api/Tenant".ToLower()))
 				return false;
 			if(requestPath == "/openapi/v1.json")
 				return false;
