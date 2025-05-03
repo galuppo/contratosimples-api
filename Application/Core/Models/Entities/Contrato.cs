@@ -10,8 +10,8 @@ namespace contratosimples_api.Application.Core.Models.Entities
 		public CentroDeCusto CentroDeCusto { get; set; }
 		public Cliente Cliente { get; set; }
 		public Fornecedor Fornecedor { get; set; }
-		public DateTime DtInicio { get; set; }
-		public DateTime DtFim { get; set; }
+		public DateOnly DtInicio { get; set; }
+		public DateOnly DtFim { get; set; }
 		public string Obs { get; set; }
 		public List<ContratoItem> Itens { get; set; }
 	}

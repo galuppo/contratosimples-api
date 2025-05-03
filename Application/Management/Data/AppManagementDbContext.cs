@@ -90,6 +90,16 @@ namespace contratosimples_api.Application.Management.Data
 				}
 			};
 			builder.Entity<IdentityUserRole<string>>().HasData(adminRoles);
+
+
+			//Cria indices únicos
+			builder.Entity<Tenant>()
+				.HasIndex(t => t.Cpf_cnpj)
+				.IsUnique();
+
+			builder.Entity<Usuario>()
+				.HasIndex(u => u.Email)
+				.IsUnique();
 		}
 
 	}

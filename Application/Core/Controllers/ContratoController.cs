@@ -119,7 +119,7 @@ namespace contratosimples_api.Application.Core.Controllers
 			contrato.CentroDeCusto = centroDeCusto;
 			contrato.Fornecedor = fornecedor;
 			contrato.Cliente = cliente;
-			contrato.DtFim = request.DtFim; ;
+			contrato.DtFim = request.DtFim;
 			contrato.DtInicio = request.DtInicio;
 			contrato.Obs = request.Obs;
 

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using contratosimples_api.Application.Management.Data;
@@ -11,9 +12,11 @@ using contratosimples_api.Application.Management.Data;
 namespace contratosimples_api.Migrations
 {
     [DbContext(typeof(AppManagementDbContext))]
-    partial class AppManagementDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250503141615_unique tenant e user")]
+    partial class uniquetenanteuser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

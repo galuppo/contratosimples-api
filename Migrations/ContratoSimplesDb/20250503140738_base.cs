@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -6,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace contratosimples_api.Migrations.ContratoSimplesDb
 {
     /// <inheritdoc />
-    public partial class inicial : Migration
+    public partial class @base : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -94,6 +95,8 @@ namespace contratosimples_api.Migrations.ContratoSimplesDb
                     CentroDeCustoId = table.Column<int>(type: "integer", nullable: false),
                     ClienteId = table.Column<int>(type: "integer", nullable: false),
                     FornecedorId = table.Column<int>(type: "integer", nullable: false),
+                    DtInicio = table.Column<DateOnly>(type: "date", nullable: false),
+                    DtFim = table.Column<DateOnly>(type: "date", nullable: false),
                     Obs = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>

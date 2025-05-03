@@ -35,6 +35,13 @@ namespace contratosimples_api.Application.Management.Controllers
 			var tenant = request.MapToEntity();
 			tenant.DataBaseName = GenerateDatabaseName(tenant);
 
+			//verifica se o CPF/CPNJ já esta cadastrado
+			var existingTenant = await uow.TenantRepository.GetAsync(t => t.Cpf_cnpj == request.Cpf_cnpj);
+			if (existingTenant != null) {
+				ModelState.AddModelError("", "CPF/CNPJ já cadastrado!");
+				return ValidationProblem(ModelState);
+			}
+
 			await uow.TenantRepository.InsertAsync(tenant);
 			await uow.SaveAsync();
 

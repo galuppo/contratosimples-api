@@ -30,24 +30,24 @@ namespace contratosimples_api.Application.Management.Controllers
 				Email = request.Email?.Trim()
 			};
 
-			var identityResult = await userManager.CreateAsync(user, request.Password);
+			//verifica se o email já esta cadastrado
+			var existingUser = await userManager.FindByEmailAsync(user.Email);
+			if (existingUser != null) {
+				ModelState.AddModelError("", "Usuário com email já cadastrado!");
+				return ValidationProblem(ModelState);
+			}
 
-			if (identityResult.Succeeded) {
+			var identityResult = await userManager.CreateAsync(user, request.Password);
+			if (identityResult.Succeeded)
 				identityResult = await userManager.AddToRoleAsync(user, UsuarioRole.READER_ROLE);
-				if (identityResult.Succeeded)
-					return Ok();
-				else {
-					if (identityResult.Errors.Any()) {
-						foreach (var error in identityResult.Errors) {
-							ModelState.AddModelError("", error.Description);
-						}
-					}
-				}
-			} else {
-				if (identityResult.Errors.Any()) {
-					foreach (var error in identityResult.Errors) {
-						ModelState.AddModelError("", error.Description);
-					}
+			if (identityResult.Succeeded)
+				identityResult = await userManager.AddToRoleAsync(user, UsuarioRole.WRITER_ROLE);
+			if (identityResult.Succeeded)
+				return Ok();
+
+			if (identityResult.Errors.Any()) {
+				foreach (var error in identityResult.Errors) {
+					ModelState.AddModelError("", error.Description);
 				}
 			}
 

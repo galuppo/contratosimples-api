@@ -12,8 +12,8 @@ using contratosimples_api.Application.Management.Data;
 namespace contratosimples_api.Migrations
 {
     [DbContext(typeof(AppManagementDbContext))]
-    [Migration("20250426205049_inicial")]
-    partial class inicial
+    [Migration("20250503134222_base")]
+    partial class @base
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
