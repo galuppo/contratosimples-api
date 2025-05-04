@@ -9,6 +9,7 @@ namespace contratosimples_api.Application.Management.Controllers
 {
 	[Route("api/[controller]")]
 	[ApiController]
+	[Authorize(Roles = UsuarioRole.APP_ADMIN)]
 	public class TenantController : ControllerBase
 	{
 		private readonly AppManagementUnitOfWork uow;
@@ -23,14 +24,7 @@ namespace contratosimples_api.Application.Management.Controllers
 			this.uow = uow;
 		}
 
-		[HttpGet]
-		[Authorize]
-		public async Task<IActionResult> TestUser() {
-			return Ok(HttpContext.User);
-		}
-
-		[HttpPost]
-		[Authorize(Roles = UsuarioRole.APP_ADMIN)]
+		[HttpPost]		
 		public async Task<IActionResult> CreateTenant([FromBody] CreateTenantDto request) {
 			var tenant = request.MapToEntity();
 			tenant.DataBaseName = GenerateDatabaseName(tenant);
@@ -46,6 +40,17 @@ namespace contratosimples_api.Application.Management.Controllers
 			await uow.SaveAsync();
 
 			var response = TenantDto.MapFromEntity(tenant);
+
+			return Ok(response);
+		}
+
+		[HttpGet]
+		public async Task<IActionResult> GetAll() {
+			var tenants = await uow.TenantRepository.GetAsync();
+			var response = new List<TenantDto>();
+
+			foreach (var tenant in tenants)
+				response.Add(TenantDto.MapFromEntity(tenant));
 
 			return Ok(response);
 		}
