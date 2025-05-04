@@ -2,7 +2,7 @@
 {
 	public class RelateUserTenantRequestDto
 	{
-		public string UserID { get; set; }
-		public int TenantId { get; set; }
+		public string UserEmail { get; set; }
+		public string TenantCPF_CNPJ { get; set; }
 	}
 }

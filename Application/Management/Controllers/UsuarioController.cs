@@ -121,11 +121,11 @@ namespace contratosimples_api.Application.Management.Controllers
 		[Authorize(Roles = UsuarioRole.WRITER_ROLE)]
 		[Route("Relate")]
 		public async Task<IActionResult> RelateTenant([FromBody] RelateUserTenantRequestDto request) {
-			var user = (await uow.UsuarioRepository.GetAsync(u => u.Id == request.UserID, null, "Tenants")).FirstOrDefault();
+			var user = (await uow.UsuarioRepository.GetAsync(u => u.Email == request.UserEmail, null, "Tenants")).FirstOrDefault();
 			if (user == null)
 				return BadRequest("Usuário não encontrado!");
 
-			var tenant = await uow.TenantRepository.GetByIdAsync(request.TenantId);
+			var tenant = (await uow.TenantRepository.GetAsync(t => t.Cpf_cnpj == request.TenantCPF_CNPJ)).FirstOrDefault();
 			if (tenant == null)
 				return BadRequest("Tenant não encontrado!");
 
