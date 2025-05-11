@@ -48,11 +48,11 @@ namespace contratosimples_api.Application.Management.Controllers
 				identityResult = await userManager.AddToRoleAsync(user, UsuarioRole.WRITER_ROLE);
 			if (identityResult.Succeeded) {
 
-				if(request.TenantId != null) {
+				if(request.TenantCPF_CNPJ != null) {
 					Usuario u = await uow.UsuarioRepository.GetByIdAsync(user.Id);
-					Tenant t = await uow.TenantRepository.GetByIdAsync(request.TenantId);
+					Tenant t = await uow.TenantRepository.GetByIdAsync(request.TenantCPF_CNPJ);
 					if (t == null) {
-						ModelState.AddModelError("", "Tenant id " + request.TenantId + " não encontrado!");
+						ModelState.AddModelError("", "Tenant CPF/CNPJ " + request.TenantCPF_CNPJ + " não encontrado!");
 						return ValidationProblem(ModelState);
 					}
 
