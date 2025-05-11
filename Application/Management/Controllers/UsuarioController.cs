@@ -30,7 +30,7 @@ namespace contratosimples_api.Application.Management.Controllers
 		public async Task<IActionResult> Register([FromBody] UsuarioRegisterDto request) {
 			//Create IdentityUser object
 			var user = new Usuario {
-				UserName = request.Email?.Trim(),
+				UserName = request.UserName.Trim(),
 				Email = request.Email?.Trim()
 			};
 
@@ -90,6 +90,7 @@ namespace contratosimples_api.Application.Management.Controllers
 
 
 					var response = new LoginResponseDto() {
+						UserName = identityUser.UserName,
 						Email = request.Email,
 						Roles = roles.ToList(),
 						Token = token,
