@@ -41,34 +41,43 @@ namespace contratosimples_api.Application.Management.Controllers
 				return ValidationProblem(ModelState);
 			}
 
-			var identityResult = await userManager.CreateAsync(user, request.Password);
-			if (identityResult.Succeeded)
-				identityResult = await userManager.AddToRoleAsync(user, UsuarioRole.READER_ROLE);
-			if (identityResult.Succeeded)
-				identityResult = await userManager.AddToRoleAsync(user, UsuarioRole.WRITER_ROLE);
-			if (identityResult.Succeeded) {
+			try {
+				await uow.BeginTransactionAsync();
 
-				if(request.TenantCPF_CNPJ != null) {
-					Usuario u = await uow.UsuarioRepository.GetByIdAsync(user.Id);
-					Tenant t = await uow.TenantRepository.GetByIdAsync(request.TenantCPF_CNPJ);
-					if (t == null) {
-						ModelState.AddModelError("", "Tenant CPF/CNPJ " + request.TenantCPF_CNPJ + " não encontrado!");
-						return ValidationProblem(ModelState);
+				var identityResult = await userManager.CreateAsync(user, request.Password);
+				if (identityResult.Succeeded)
+					identityResult = await userManager.AddToRoleAsync(user, UsuarioRole.READER_ROLE);
+				if (identityResult.Succeeded)
+					identityResult = await userManager.AddToRoleAsync(user, UsuarioRole.WRITER_ROLE);
+				if (identityResult.Succeeded) {
+
+					if (request.TenantCPF_CNPJ != null) {
+						Usuario u = await uow.UsuarioRepository.GetByIdAsync(user.Id);
+						Tenant t = (await uow.TenantRepository.GetAsync(t => t.Cpf_cnpj == request.TenantCPF_CNPJ, null, "Usuarios")).FirstOrDefault();
+						if (t == null) {
+							ModelState.AddModelError("", "Tenant CPF/CNPJ " + request.TenantCPF_CNPJ + " não encontrado!");
+							return ValidationProblem(ModelState);
+						}
+
+						t.Usuarios.Add(u);
+						await uow.SaveAsync();
+
 					}
-
-					u.Tenants.Add(t);
-					await uow.SaveAsync();
-
+					await uow.EndTransactionAsync();
+					return Ok();
 				}
-				return Ok();
-			}
-				
 
-			if (identityResult.Errors.Any()) {
-				foreach (var error in identityResult.Errors) {
-					ModelState.AddModelError("", error.Description);
+				if (identityResult.Errors.Any()) {
+					foreach (var error in identityResult.Errors) {
+						ModelState.AddModelError("", error.Description);
+					}
 				}
+
+			} catch (Exception ex) {
+				await uow.RollBackTransactionAsync();
+				throw;
 			}
+			await uow.RollBackTransactionAsync();
 			return ValidationProblem(ModelState);
 		}
 		
@@ -136,8 +145,21 @@ namespace contratosimples_api.Application.Management.Controllers
 
 			return Ok();
 		}
-	
+
+		[HttpGet]
+		[Authorize(Roles = UsuarioRole.WRITER_ROLE)]
+		[Route("Tenant/{tenantCpfCnpj}")]
+		public async Task<IActionResult> GetAllUsuariosByTenant([FromRoute] string tenantCpfCnpj) {
+			var tenant = (await uow.TenantRepository.GetAsync(t => t.Cpf_cnpj == tenantCpfCnpj, null, "Usuarios")).FirstOrDefault();
+			
+			if(tenant == null) 
+				return BadRequest("Tenant CPF/CNPJ "+tenantCpfCnpj+" não encontrado!");
+
+			var response = new List<UsuarioDto>();
+			foreach (var user in tenant.Usuarios)		
+				response.Add(UsuarioDto.MapFromEntity(user));
+
+			return Ok(response);
+		}
 	}
-
-
 }
