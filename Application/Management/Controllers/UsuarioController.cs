@@ -161,5 +161,21 @@ namespace contratosimples_api.Application.Management.Controllers
 
 			return Ok(response);
 		}
+
+		[HttpGet]
+		[Authorize(Roles = UsuarioRole.WRITER_ROLE)]
+		[Route("{email}")]
+		public async Task<IActionResult> GetUserByEmail([FromRoute] string email) {
+			var user = (await uow.UsuarioRepository.GetAsync(u => u.Email == email.ToLower(), null, "Tenants")).FirstOrDefault();
+
+			if (user == null)
+				return NotFound();
+
+			var response = UsuarioDto.MapFromEntity(user);
+			return Ok(response);
+		}
+		
+	
+	
 	}
 }
