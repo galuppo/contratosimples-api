@@ -146,6 +146,28 @@ namespace contratosimples_api.Application.Management.Controllers
 			return Ok();
 		}
 
+		[HttpPost]
+		[Authorize(Roles = UsuarioRole.WRITER_ROLE)]
+		[Route("Unrelate")]
+		public async Task<IActionResult> UnrelateTenant([FromBody] UnrelateUserTenantRequestDto request) {
+			var user = (await uow.UsuarioRepository.GetAsync(u => u.Email == request.UserEmail, null, "Tenants")).FirstOrDefault();
+			if (user == null)
+				return BadRequest("Usuário não encontrado!");
+
+			foreach (var tenant in user.Tenants) {
+				if (tenant.Cpf_cnpj == request.TenantCPF_CNPJ) {
+					user.Tenants.Remove(tenant);
+					break;
+				}
+			}
+		
+			await uow.UsuarioRepository.UpdateAsync(user.Id, user);
+			await uow.SaveAsync();
+
+			return Ok();
+		}
+
+
 		[HttpGet]
 		[Authorize(Roles = UsuarioRole.WRITER_ROLE)]
 		[Route("Tenant/{tenantCpfCnpj}")]
