@@ -196,7 +196,56 @@ namespace contratosimples_api.Application.Management.Controllers
 			var response = UsuarioDto.MapFromEntity(user);
 			return Ok(response);
 		}
-		
+
+		[HttpPut]
+		[Authorize(Roles = UsuarioRole.WRITER_ROLE)]
+		public async Task<IActionResult> UpdateUser([FromBody] UpdateUserRequestDto request) {
+			
+			request.Email = request.Email.ToLower().Trim();
+			request.UserName = request.UserName.Trim();
+			request.Password = request.Password.Trim();
+				
+			
+			var user = await userManager.FindByEmailAsync(request.Email);
+			if(user == null) {
+				ModelState.AddModelError("", "Usuário " + request.Email + " não encontrado!");
+				return ValidationProblem(ModelState);
+			}
+
+			try {
+				await uow.BeginTransactionAsync();
+
+				if (user.UserName != request.UserName) {
+					var identityResult = await userManager.SetUserNameAsync(user, request.UserName);
+					if (identityResult.Errors.Any()) {
+						foreach (var error in identityResult.Errors) {
+							ModelState.AddModelError("", error.Description);
+						}
+						await uow.RollBackTransactionAsync();
+						return ValidationProblem(ModelState);
+					}
+				}
+
+				if (!String.IsNullOrEmpty(request.Password)) {
+					string resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
+					var identityResult = await userManager.ResetPasswordAsync(user, resetToken, request.Password);
+					if (identityResult.Errors.Any()) {
+						foreach (var error in identityResult.Errors) {
+							ModelState.AddModelError("", error.Description);
+						}
+						await uow.RollBackTransactionAsync();
+						return ValidationProblem(ModelState);
+					}
+				}
+
+				await uow.EndTransactionAsync();
+				return Ok(UsuarioDto.MapFromEntity(user));
+
+			} catch (Exception ex) {
+				await uow.RollBackTransactionAsync();
+				throw;
+			}
+		}
 	
 	
 	}
