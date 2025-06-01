@@ -26,11 +26,15 @@ namespace contratosimples_api.Application.Management.Controllers
 
 		[HttpPost]		
 		public async Task<IActionResult> CreateTenant([FromBody] CreateTenantDto request) {
+			
+			//remove todos os caracteres que não sejam númericos
+			request.Cpf_cnpj = string.Concat(request.Cpf_cnpj.Where(char.IsDigit));
+
 			var tenant = request.MapToEntity();
 			tenant.DataBaseName = GenerateDatabaseName(tenant);
 
 			//verifica se o CPF/CPNJ já esta cadastrado
-			var existingTenant = await uow.TenantRepository.GetAsync(t => t.Cpf_cnpj == request.Cpf_cnpj);
+			var existingTenant = (await uow.TenantRepository.GetAsync(t => t.Cpf_cnpj == request.Cpf_cnpj)).FirstOrDefault();
 			if (existingTenant != null) {
 				ModelState.AddModelError("", "CPF/CNPJ já cadastrado!");
 				return ValidationProblem(ModelState);
