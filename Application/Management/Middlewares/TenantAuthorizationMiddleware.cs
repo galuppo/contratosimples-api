@@ -66,8 +66,8 @@ namespace contratosimples_api.Application.Management.Middlewares
 
 
 				//Verifica se o tenant existe
-				var idTenant = int.Parse(tenantHeader.First());
-				Tenant? t = await uow.TenantRepository.GetByIdAsync(idTenant);
+				var tenantCpfCnpj = tenantHeader.First().ToString();
+				Tenant? t = (await uow.TenantRepository.GetAsync(t => t.Cpf_cnpj == tenantCpfCnpj)).FirstOrDefault();
 				if (t == null) {
 					httpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
 					await httpContext.Response.WriteAsync("Cliente não encontrado");
@@ -77,8 +77,8 @@ namespace contratosimples_api.Application.Management.Middlewares
 				//Caso o usuário não seja um admin do app, ele precisa estar relacionado ao tenant
 				if (!IsUserAdmin(httpContext)) {
 					var userEmail = requestUser.FindFirstValue(ClaimTypes.Email);
-					var user = (await uow.UsuarioRepository.GetAsync(u => u.Email == userEmail, null, "Clientes")).First();
-					var tenant = user.Tenants.Find(t => t.Id == idTenant);
+					var user = (await uow.UsuarioRepository.GetAsync(u => u.Email == userEmail, null, "Tenants")).First();
+					var tenant = user.Tenants.Find(t => t.Cpf_cnpj == tenantCpfCnpj);
 					//se não encontrou o tenant relacionado ao usuário, retorna erro
 					if(tenant is null) {
 						httpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
