@@ -32,7 +32,7 @@ namespace contratosimples_api.Application.Management.Repositories
 				issuer: config["Jwt:Issuer"],
 				audience: config["Jwt:Audience"],
 				claims: claims,
-				expires: DateTime.Now.AddMinutes(15),
+				expires: DateTime.Now.AddMinutes(9*60),
 				signingCredentials: credentials);
 
 			//Return token
