@@ -82,12 +82,12 @@ namespace contratosimples_api.Application.Core.Controllers
 		[Authorize(Roles = UsuarioRole.READER_ROLE)]
 		[Route("{idContrato:int}")]
 		public async Task<IActionResult> GetContratoById([FromRoute] int idContrato) {
-			var contrato = await uow.ContratoRepository.GetAsync(c => c.Id == idContrato, null, "CentroDeCusto,Fornecedor,Cliente");
+			var contrato = (await uow.ContratoRepository.GetAsync(c => c.Id == idContrato, null, "CentroDeCusto,Fornecedor,Cliente")).FirstOrDefault();
 
 			if (contrato == null)
 				return NotFound();
 
-			var response = ContratoDto.MapFromEntity(contrato.First());
+			var response = ContratoDto.MapFromEntity(contrato);
 			return Ok(response);
 		}
 

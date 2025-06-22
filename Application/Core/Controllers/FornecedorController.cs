@@ -97,7 +97,7 @@ namespace contratosimples_api.Application.Core.Controllers
 		[Authorize(Roles = UsuarioRole.WRITER_ROLE)]
 		[Route("{idFornecedor:int}")]
 		public async Task<IActionResult> DeleteFornecedorById([FromRoute] int idFornecedor) {
-			var forn = await uow.FornecedorRepository.GetAsync(f => f.Id == idFornecedor, null, "Contatos");
+			var forn = (await uow.FornecedorRepository.GetAsync(f => f.Id == idFornecedor, null, "Contatos")).FirstOrDefault();
 			if (forn == null)
 				return NotFound();
 			await uow.FornecedorRepository.DeleteAsync(idFornecedor);
