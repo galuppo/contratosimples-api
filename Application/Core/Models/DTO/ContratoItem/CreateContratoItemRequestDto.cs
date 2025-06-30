@@ -23,5 +23,21 @@
 				IsGrupo = IsGrupo
 			};
 		}
+		public static Dictionary<int, Entities.ContratoItem>[] MapRequestItens(List<CreateContratoItemRequestDto> request) {
+			var hashGrupos = new Dictionary<int, Entities.ContratoItem>();
+			var hashItens = new Dictionary<int, Entities.ContratoItem>();
+
+			foreach (var item in request) {
+				var contratoItem = item.MapToEntity();
+				hashItens.Add(item.TemporaryId, contratoItem);
+
+				if (item.IsGrupo)
+					hashGrupos.Add(item.TemporaryId, contratoItem);
+			}
+
+			Dictionary<int, Entities.ContratoItem>[] response = { hashGrupos, hashItens };
+			return response;
+
+		}
 	}
 }

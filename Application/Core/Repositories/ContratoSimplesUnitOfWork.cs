@@ -14,6 +14,8 @@ namespace contratosimples_api.Application.Core.Repositories
 		private GenericRepository<Fornecedor>? fornecedorRepository;
 		private GenericRepository<Contrato>? contratoRepository;
 		private GenericRepository<ContratoItem>? contratoItemRepository;
+		private GenericRepository<Aditivo>? aditivoRepository;
+		private GenericRepository<AditivoItem>? aditivoItemRepository;
 
 		public ContratoSimplesUnitOfWork(IConfiguration config, TenantService tenantService) : base(config) {
 			var connectionString = config.GetConnectionString("ContratoSimplesConnectionString");
@@ -72,6 +74,19 @@ namespace contratosimples_api.Application.Core.Repositories
 				return contratoItemRepository;
 			}
 		}
-
+		public GenericRepository<Aditivo> AditivoRepository {
+			get {
+				if (aditivoRepository == null)
+					aditivoRepository = new GenericRepository<Aditivo>(dbContext);
+				return aditivoRepository;
+			}
+		}
+		public GenericRepository<AditivoItem> AditivoItemRepository {
+			get {
+				if (aditivoItemRepository == null)
+					aditivoItemRepository = new GenericRepository<AditivoItem>(dbContext);
+				return aditivoItemRepository;
+			}
+		}
 	}
 }

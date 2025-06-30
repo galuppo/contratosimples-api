@@ -1,9 +1,11 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace contratosimples_api.Application.Core.Models.Entities
 {
 	public class ContratoItem
 	{
+		[Key]
 		public int Id { get; set; }
 		public int ContratoId { get; set; }
 		public ContratoItem? Grupo { get; set; }

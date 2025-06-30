@@ -19,23 +19,6 @@ namespace contratosimples_api.Application.Core.Controllers
 			this.uow = uow;
 		}
 
-		private Dictionary<int, ContratoItem>[] MapRequestItens(List<CreateContratoItemRequestDto> request) {
-			var hashGrupos = new Dictionary<int, ContratoItem>();
-			var hashItens = new Dictionary<int, ContratoItem>();
-
-			foreach (var item in request) {
-				var contratoItem = item.MapToEntity();
-				hashItens.Add(item.TemporaryId, contratoItem);
-
-				if (item.IsGrupo)
-					hashGrupos.Add(item.TemporaryId, contratoItem);
-			}
-
-			Dictionary<int, ContratoItem>[] response = { hashGrupos, hashItens };
-			return response;
-
-		}
-
 		[HttpPost]
 		[Authorize(Roles = UsuarioRole.WRITER_ROLE)]
 		public async Task<IActionResult> CreateContrato([FromBody] CreateContratoRequestDto request) {
@@ -48,7 +31,7 @@ namespace contratosimples_api.Application.Core.Controllers
 			contrato.Fornecedor = fornecedor;
 			contrato.Cliente = cliente;
 
-			Dictionary<int, ContratoItem>[] hashMap = MapRequestItens(request.Itens);
+			Dictionary<int, ContratoItem>[] hashMap = CreateContratoItemRequestDto.MapRequestItens(request.Itens);
 
 			var hashGrupos = hashMap[0];
 			var hashItens = hashMap[1];
@@ -123,7 +106,7 @@ namespace contratosimples_api.Application.Core.Controllers
 			contrato.DtInicio = request.DtInicio;
 			contrato.Obs = request.Obs;
 
-			Dictionary<int, ContratoItem>[] hashMap = MapRequestItens(request.ItensToAdd);
+			Dictionary<int, ContratoItem>[] hashMap = CreateContratoItemRequestDto.MapRequestItens(request.ItensToAdd);
 
 			var hashGrupos = hashMap[0];
 			var hashItens = hashMap[1];
