@@ -53,7 +53,7 @@ namespace contratosimples_api.Application.Core.Controllers
 		[HttpGet]
 		[Authorize(Roles = UsuarioRole.READER_ROLE)]
 		public async Task<IActionResult> GetAllContrato() {
-			var contratos = await uow.ContratoRepository.GetAsync(null, null, "CentroDeCusto,Fornecedor,Cliente");
+			var contratos = await uow.ContratoRepository.GetAsync(null, (q => q.OrderBy(c => c.Id)), "CentroDeCusto,Fornecedor,Cliente");
 
 			var response = new List<ContratoDto>();
 			foreach (var c in contratos)
