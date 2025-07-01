@@ -111,5 +111,25 @@ namespace contratosimples_api.Application.Core.Controllers
 
 			return Ok(AditivoDto.MapFromEntity(aditivo));
 		}
+
+		[HttpGet]
+		[Authorize(Roles = UsuarioRole.READER_ROLE)]
+		[Route("contrato/{idContrato:int}")]
+		public async Task<IActionResult> GetAllAditivosContrato([FromRoute] int idContrato) {
+
+			var contrato = await uow.ContratoRepository.GetAsync((c) => c.Id == idContrato, null, "CentroDeCusto,Fornecedor,Cliente");
+
+			var aditivos = await uow.AditivoRepository.GetAsync((a) => a.Contrato.Id == idContrato, ((q) => q.OrderBy(a => a.Id)), "Contrato");
+
+			var response = new List<AditivoDto>();
+
+			foreach (var adtv in aditivos) {
+				response.Add(AditivoDto.MapFromEntity(adtv));
+			}
+
+			return Ok(response);
+
+		}
+	
 	}
 }
