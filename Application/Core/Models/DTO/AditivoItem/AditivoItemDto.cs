@@ -6,7 +6,7 @@ namespace contratosimples_api.Application.Core.Models.DTO.AditivoItem
 	{
 		public int Id { get; set; }
 		public int IdAditivo { get; set; }
-		public ContratoItemDto ContratoItem { get; set; }
+		public int IdContratoItem { get; set; }
 		public int TipoAditivo { get; set; }
 		public decimal Quantidade { get; set; }
 		public decimal ValorTotal { get; set; }
@@ -15,7 +15,7 @@ namespace contratosimples_api.Application.Core.Models.DTO.AditivoItem
 			return new AditivoItemDto {
 				Id = entity.Id,
 				IdAditivo = entity.Aditivo.Id,
-				ContratoItem = ContratoItemDto.MapFromEntity(entity.ContratoItem),
+				IdContratoItem = entity.ContratoItem.Id,
 				TipoAditivo = entity.TipoAditivo,
 				Quantidade = entity.Quantidade,
 				ValorTotal = entity.ValorTotal
