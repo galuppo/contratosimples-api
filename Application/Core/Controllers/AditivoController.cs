@@ -115,10 +115,8 @@ namespace contratosimples_api.Application.Core.Controllers
 
 		[HttpGet]
 		[Authorize(Roles = UsuarioRole.READER_ROLE)]
-		[Route("contrato/{idContrato:int}")]
-		public async Task<IActionResult> GetAllAditivosContrato([FromRoute] int idContrato) {
-
-			var contrato = await uow.ContratoRepository.GetAsync((c) => c.Id == idContrato, null, "CentroDeCusto,Fornecedor,Cliente");
+		[Route("contrato/{idContrato:int}/cabecalho")]
+		public async Task<IActionResult> GetAllCabecalhoAditivosContrato([FromRoute] int idContrato) {
 
 			var aditivos = await uow.AditivoRepository.GetAsync((a) => a.Contrato.Id == idContrato, ((q) => q.OrderBy(a => a.Id)), "Contrato");
 
@@ -136,7 +134,7 @@ namespace contratosimples_api.Application.Core.Controllers
 		[Authorize(Roles = UsuarioRole.READER_ROLE)]
 		[Route("{idAditivo:int}/itens")]
 		public async Task<IActionResult> GetItensAditivo([FromRoute] int idAditivo) {
-			var itensAditivo = await uow.AditivoItemRepository.GetAsync((i) => i.Aditivo.Id == idAditivo, null, "Aditivo,ContratoItem");
+			var itensAditivo = await uow.AditivoItemRepository.GetAsync((i) => i.Aditivo.Id == idAditivo);
 			var response = new List<AditivoItemDto>();
 
 			foreach (var iAditivo in itensAditivo) {
