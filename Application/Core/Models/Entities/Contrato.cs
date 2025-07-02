@@ -14,6 +14,6 @@ namespace contratosimples_api.Application.Core.Models.Entities
 		public DateOnly DtFim { get; set; }
 		public string Obs { get; set; }
 		public List<ContratoItem> Itens { get; set; }
-		public List<Aditivo> Aditivos { get; set; }
+
 	}
 }
