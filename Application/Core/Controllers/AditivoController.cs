@@ -110,7 +110,7 @@ namespace contratosimples_api.Application.Core.Controllers
 
 			await uow.SaveAsync();
 
-			return Ok(AditivoDto.MapFromEntity(aditivo));
+			return Ok(AditivoCabecalhoDto.MapFromEntity(aditivo));
 		}
 
 		[HttpGet]
@@ -122,10 +122,10 @@ namespace contratosimples_api.Application.Core.Controllers
 
 			var aditivos = await uow.AditivoRepository.GetAsync((a) => a.Contrato.Id == idContrato, ((q) => q.OrderBy(a => a.Id)), "Contrato");
 
-			var response = new List<AditivoDto>();
+			var response = new List<AditivoCabecalhoDto>();
 
 			foreach (var adtv in aditivos) {
-				response.Add(AditivoDto.MapFromEntity(adtv));
+				response.Add(AditivoCabecalhoDto.MapFromEntity(adtv));
 			}
 
 			return Ok(response);
