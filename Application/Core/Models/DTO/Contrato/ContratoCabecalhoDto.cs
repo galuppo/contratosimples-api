@@ -4,7 +4,7 @@ using contratosimples_api.Application.Core.Models.DTO.Fornecedor;
 
 namespace contratosimples_api.Application.Core.Models.DTO.Contrato
 {
-	public class ContratoDto
+	public class ContratoCabecalhoDto
 	{
 		public int Id { get; set; }
 		public CentroDeCustoDto CentroDeCusto { get; set; }
@@ -14,8 +14,8 @@ namespace contratosimples_api.Application.Core.Models.DTO.Contrato
 		public DateOnly DtFim { get; set; }
 		public string Obs { get; set; }
 
-		public static ContratoDto MapFromEntity(Entities.Contrato entity) {
-			return new ContratoDto {
+		public static ContratoCabecalhoDto MapFromEntity(Entities.Contrato entity) {
+			return new ContratoCabecalhoDto {
 				Id = entity.Id,
 				CentroDeCusto = CentroDeCustoDto.MapFromEntity(entity.CentroDeCusto),
 				Cliente = ClienteDto.MapFromEntity(entity.Cliente),

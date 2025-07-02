@@ -46,7 +46,7 @@ namespace contratosimples_api.Application.Core.Controllers
 			contrato = await uow.ContratoRepository.InsertAsync(contrato);
 			await uow.SaveAsync();
 
-			var response = ContratoDto.MapFromEntity(contrato);
+			var response = ContratoCabecalhoDto.MapFromEntity(contrato);
 			return Ok(response);
 		}
 
@@ -55,22 +55,22 @@ namespace contratosimples_api.Application.Core.Controllers
 		public async Task<IActionResult> GetAllContrato() {
 			var contratos = await uow.ContratoRepository.GetAsync(null, (q => q.OrderBy(c => c.Id)), "CentroDeCusto,Fornecedor,Cliente");
 
-			var response = new List<ContratoDto>();
+			var response = new List<ContratoCabecalhoDto>();
 			foreach (var c in contratos)
-				response.Add(ContratoDto.MapFromEntity(c));
+				response.Add(ContratoCabecalhoDto.MapFromEntity(c));
 			return Ok(response);
 		}
 
 		[HttpGet]
 		[Authorize(Roles = UsuarioRole.READER_ROLE)]
-		[Route("{idContrato:int}")]
-		public async Task<IActionResult> GetContratoById([FromRoute] int idContrato) {
+		[Route("{idContrato:int}/cabecalho")]
+		public async Task<IActionResult> GetContratoCabecalhoById([FromRoute] int idContrato) {
 			var contrato = (await uow.ContratoRepository.GetAsync(c => c.Id == idContrato, null, "CentroDeCusto,Fornecedor,Cliente")).FirstOrDefault();
 
 			if (contrato == null)
 				return NotFound();
 
-			var response = ContratoDto.MapFromEntity(contrato);
+			var response = ContratoCabecalhoDto.MapFromEntity(contrato);
 			return Ok(response);
 		}
 
@@ -160,7 +160,7 @@ namespace contratosimples_api.Application.Core.Controllers
 			await uow.SaveAsync();
 
 
-			var response = ContratoDto.MapFromEntity(contrato);
+			var response = ContratoCabecalhoDto.MapFromEntity(contrato);
 
 			return Ok(response);
 		}
