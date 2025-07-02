@@ -1,4 +1,5 @@
 ﻿using contratosimples_api.Application.Core.Models.DTO.Aditivo;
+using contratosimples_api.Application.Core.Models.DTO.AditivoItem;
 using contratosimples_api.Application.Core.Models.DTO.ContratoItem;
 using contratosimples_api.Application.Core.Models.Entities;
 using contratosimples_api.Application.Core.Repositories;
@@ -129,6 +130,44 @@ namespace contratosimples_api.Application.Core.Controllers
 
 			return Ok(response);
 
+		}
+
+		[HttpGet]
+		[Authorize(Roles = UsuarioRole.READER_ROLE)]
+		[Route("{idAditivo:int}/itens")]
+		public async Task<IActionResult> GetItensAditivo([FromRoute] int idAditivo) {
+			var itensAditivo = await uow.AditivoItemRepository.GetAsync((i) => i.Aditivo.Id == idAditivo, null, "Aditivo,ContratoItem");
+			var response = new List<AditivoItemDto>();
+
+			foreach (var iAditivo in itensAditivo) {
+				response.Add(AditivoItemDto.MapFromEntity(iAditivo));
+			}
+
+			return Ok(response);
+		} 
+
+		[HttpPut]
+		[Authorize(Roles = UsuarioRole.WRITER_ROLE)]
+		[Route("{idAditivo:int}/delete")]
+		public async Task<IActionResult> DeleteAditivo([FromRoute] int idAditivo, [FromBody] DeleteAditivoRequestDto request) {
+
+			//Busca o aditivo para verificar se ele existe
+			var aditivo = await uow.AditivoRepository.GetByIdAsync(idAditivo);
+			if (aditivo == null)
+				return Ok(idAditivo);
+
+			//Atualiza os itens do contrato
+			foreach (var iContrato in request.ItensToUpdate) {
+				var contratoItem = await uow.ContratoItemRepository.GetByIdAsync(iContrato.Id);
+				contratoItem.Quantidade = iContrato.Quantidade;
+				contratoItem.ValorTotal = iContrato.ValorTotal;
+
+				await uow.ContratoItemRepository.UpdateAsync(iContrato.Id, contratoItem);
+			}
+
+			await uow.AditivoRepository.DeleteAsync(idAditivo);
+			await uow.SaveAsync();
+			return Ok(idAditivo);
 		}
 	
 	}
