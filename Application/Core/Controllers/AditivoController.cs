@@ -132,6 +132,29 @@ namespace contratosimples_api.Application.Core.Controllers
 
 		[HttpGet]
 		[Authorize(Roles = UsuarioRole.READER_ROLE)]
+		[Route("contrato/{idContrato:int}")]
+		public async Task<IActionResult> GetAllAditivosContrato([FromRoute] int idContrato) {
+			var aditivos = await uow.AditivoRepository.GetAsync((a) => a.Contrato.Id == idContrato, ((q) => q.OrderBy(a => a.Id)), "Contrato");
+			var itensAditivos = await uow.AditivoItemRepository.GetAsync((i)=> i.Aditivo.Contrato.Id == idContrato, null, "Aditivo,ContratoItem");
+
+			Dictionary<int, AditivoDto> hashAditivos = new Dictionary<int, AditivoDto>();
+
+			foreach (var adtv in aditivos) {
+				hashAditivos.Add(adtv.Id, new AditivoDto {
+					Cabecalho = AditivoCabecalhoDto.MapFromEntity(adtv),
+					Itens = new List<AditivoItemDto>()
+				});
+			}
+
+			foreach (var iAdtv in itensAditivos) {
+				if(hashAditivos.ContainsKey(iAdtv.Aditivo.Id))
+					hashAditivos[iAdtv.Aditivo.Id].Itens.Add(AditivoItemDto.MapFromEntity(iAdtv));
+			}
+			return Ok(hashAditivos.Values.ToList());
+		}
+
+		[HttpGet]
+		[Authorize(Roles = UsuarioRole.READER_ROLE)]
 		[Route("{idAditivo:int}/itens")]
 		public async Task<IActionResult> GetItensAditivo([FromRoute] int idAditivo) {
 			var itensAditivo = await uow.AditivoItemRepository.GetAsync((i) => i.Aditivo.Id == idAditivo);
