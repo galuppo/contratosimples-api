@@ -1,4 +1,6 @@
-﻿using contratosimples_api.Application.Core.Models.DTO.Contrato;
+﻿using contratosimples_api.Application.Core.Models.DTO.Aditivo;
+using contratosimples_api.Application.Core.Models.DTO.AditivoItem;
+using contratosimples_api.Application.Core.Models.DTO.Contrato;
 using contratosimples_api.Application.Core.Models.DTO.ContratoItem;
 using contratosimples_api.Application.Core.Models.Entities;
 using contratosimples_api.Application.Core.Repositories;
@@ -59,6 +61,41 @@ namespace contratosimples_api.Application.Core.Controllers
 			foreach (var c in contratos)
 				response.Add(ContratoCabecalhoDto.MapFromEntity(c));
 			return Ok(response);
+		}
+
+		[HttpGet]
+		[Authorize(Roles = UsuarioRole.READER_ROLE)]
+		[Route("{idContrato:int}")]
+		public async Task<IActionResult> GetContrato([FromRoute] int idContrato) {
+			var contrato = (await uow.ContratoRepository.GetAsync(c => c.Id == idContrato, null, "CentroDeCusto,Fornecedor,Cliente,Itens")).FirstOrDefault();
+			if(contrato == null)
+				return NotFound();
+
+			var contratoDto = new ContratoDto();
+			contratoDto.Cabecalho = ContratoCabecalhoDto.MapFromEntity(contrato);
+			contratoDto.Itens = [];
+
+			for (int i = 0; i < contrato.Itens.Count; i++) {
+				var iContrato = contrato.Itens[i];
+				contratoDto.Itens.Add(ContratoItemDto.MapFromEntity(iContrato));
+			}
+
+			var aditivos = await uow.AditivoRepository.GetAsync(a => a.Contrato.Id == idContrato, q => q.OrderBy(a => a.Id),"ItensAditivo");
+			contratoDto.Aditivos = [];
+
+			foreach (var a in aditivos) {
+				var adtv = new AditivoDto();
+				adtv.Cabecalho = AditivoCabecalhoDto.MapFromEntity(a);
+				adtv.Itens = [];
+
+				for (int i = 0; i < a.ItensAditivo.Count; i++) {
+					var iAditivo = a.ItensAditivo[i];
+					adtv.Itens.Add(AditivoItemDto.MapFromEntity(iAditivo));
+				}
+			}
+
+
+			return Ok(contratoDto);
 		}
 
 		[HttpGet]
