@@ -165,7 +165,19 @@ namespace contratosimples_api.Application.Core.Controllers
 			}
 
 			return Ok(response);
-		} 
+		}
+
+		[HttpGet]
+		[Authorize(Roles = UsuarioRole.READER_ROLE)]
+		[Route("{idAditivo:int}/cabecalho")]
+		public async Task<IActionResult> GetCabecalhoAditivo([FromRoute] int idAditivo) {
+			var cAditivo = (await uow.AditivoRepository.GetAsync((a) => a.Id == idAditivo, null, "Contrato")).FirstOrDefault();
+			if (cAditivo == null)
+				return NotFound();
+
+			return Ok(AditivoCabecalhoDto.MapFromEntity(cAditivo));
+
+		}
 
 		[HttpPut]
 		[Authorize(Roles = UsuarioRole.WRITER_ROLE)]

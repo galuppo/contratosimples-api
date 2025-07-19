@@ -92,6 +92,7 @@ namespace contratosimples_api.Application.Core.Controllers
 					var iAditivo = a.ItensAditivo[i];
 					adtv.Itens.Add(AditivoItemDto.MapFromEntity(iAditivo));
 				}
+				contratoDto.Aditivos.Add(adtv);
 			}
 
 
