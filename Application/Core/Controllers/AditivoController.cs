@@ -56,11 +56,12 @@ namespace contratosimples_api.Application.Core.Controllers
 					ModelState.AddModelError("ContratoItem", "ContratoItem id="+item.Id+"(Cod.escopo = "+item.CodEscopo+" não encontrado!");
 					return ValidationProblem(ModelState);
 				}
+				iContrato.CodEscopo = item.CodEscopo;
 				iContrato.Quantidade = item.Quantidade;
 				iContrato.ValorTotal = item.ValorTotal;
 
 				//Relaciona o item do contrato com o novo item de aditivo
-				if(hashItensAditivo.ContainsKey(iContrato.Id))
+				if (hashItensAditivo.ContainsKey(iContrato.Id))
 					hashItensAditivo[iContrato.Id].ContratoItem = iContrato;
 
 				await uow.ContratoItemRepository.UpdateAsync(iContrato.Id, iContrato);
@@ -112,6 +113,128 @@ namespace contratosimples_api.Application.Core.Controllers
 
 			return Ok(AditivoCabecalhoDto.MapFromEntity(aditivo));
 		}
+
+		[HttpPut]
+		[Authorize(Roles = UsuarioRole.WRITER_ROLE)]
+		public async Task<IActionResult> UpdateAditivo([FromBody] UpdateAditivoRequestDto request) {
+			var aditivo = (await uow.AditivoRepository.GetAsync(a => a.Id == request.IdAditivo, null, "Contrato")).FirstOrDefault();
+			if (aditivo == null) {
+				ModelState.AddModelError("Aditivo", "Aditivo id=" + request.IdAditivo + " não encontrado!");
+				return ValidationProblem(ModelState);
+			}
+
+			//Atualiza o cabeçalho do aditivo
+			aditivo.Prazo = request.Prazo;
+			aditivo.ValorTotal = request.ValorTotal;
+
+			await uow.AditivoRepository.UpdateAsync(aditivo.Id, aditivo);
+				
+			//Carrega todos os itens do aditivo pra memória
+			var itensAditivo = await uow.AditivoItemRepository.GetAsync(i => i.Aditivo.Id == request.IdAditivo, null, "ContratoItem");
+
+			//Cria os itens do aditivo
+			//Salva os itens novos do aditivo em um hash para uso posterior
+			var hashItensAditivo = new Dictionary<int, AditivoItem>();
+			for (int i = 0; i < request.ItensAditivoToAdd.Count; i++) {
+				var iAditivoReq = request.ItensAditivoToAdd[i];
+				var iAditivo = iAditivoReq.MapToEntity();
+
+				iAditivo.Aditivo = aditivo;
+				hashItensAditivo.Add(iAditivoReq.IdItemContrato, iAditivo);
+			}
+
+			//Atualiza os itens do contrato
+			foreach (var item in request.ItensContratoToUpdate) {
+				var iContrato = await uow.ContratoItemRepository.GetByIdAsync(item.Id);
+				if (iContrato == null) {
+					ModelState.AddModelError("ContratoItem", "ContratoItem id=" + item.Id + "(Cod.escopo = " + item.CodEscopo + " não encontrado!");
+					return ValidationProblem(ModelState);
+				}
+				iContrato.CodEscopo = item.CodEscopo;
+				iContrato.Descricao = item.Descricao;
+				iContrato.UnMedida = item.UnMedida;
+				iContrato.ValorUnit = item.ValorUnit;
+				iContrato.Quantidade = item.Quantidade;
+				iContrato.ValorTotal = item.ValorTotal;
+
+				//Relaciona o item do contrato com o novo item de aditivo
+				if (hashItensAditivo.ContainsKey(iContrato.Id))
+					hashItensAditivo[iContrato.Id].ContratoItem = iContrato;
+
+				await uow.ContratoItemRepository.UpdateAsync(iContrato.Id, iContrato);
+			}
+
+			//Mapeia os itens do contrato a serem adicionados
+			Dictionary<int, ContratoItem>[] hashMap = CreateContratoItemRequestDto.MapRequestItens(request.ItensContratoToAdd);
+			var hashGrupos = hashMap[0];
+			var hashItens = hashMap[1];
+
+			//Insere os novos itens
+			foreach (var iContratoReq in request.ItensContratoToAdd) {
+				var iContrato = hashItens[iContratoReq.TemporaryId];
+				if (iContratoReq.GrupoId is not null) {
+					//Verifica se o grupo esta no hash, senão, deve estar no banco
+					if (hashGrupos.ContainsKey((int)iContratoReq.GrupoId))
+						iContrato.Grupo = hashGrupos[(int)iContratoReq.GrupoId];
+					else
+						iContrato.Grupo = await uow.ContratoItemRepository.GetByIdAsync(iContratoReq.GrupoId);
+
+					//Se o grupo estiver null significa que não foi encontrato o
+					//o item referenciado pelo GrupoId
+					if (iContrato.Grupo is null) {
+						ModelState.AddModelError("ContratoItem", "Grupo id=" + iContratoReq.GrupoId + " não encontrado para o item com cód. escopo: " + iContrato.CodEscopo);
+						return ValidationProblem(ModelState);
+					}
+				}
+
+				iContrato.ContratoId = aditivo.Contrato.Id;
+
+				//Relaciona o item do contrato com o novo item de aditivo
+				//Caso não encontre item de aditivo, gera erro
+				if (hashItensAditivo.ContainsKey(iContratoReq.TemporaryId))
+					hashItensAditivo[iContratoReq.TemporaryId].ContratoItem = iContrato;
+				else {
+					ModelState.AddModelError("AditivoItem", "Não foi encontrado aditivo para o item com cod. escopo " + iContrato.CodEscopo);
+					return ValidationProblem(ModelState);
+				}
+				await uow.ContratoItemRepository.InsertAsync(iContrato);
+			}
+
+			//Insere os novos itens do aditivo
+			foreach (var iAditivo in hashItensAditivo.Values) {
+				await uow.AditivoItemRepository.InsertAsync(iAditivo);
+			}
+
+			//Atualiza os itens do aditivo
+			foreach(var rItemAditivo in request.ItensAditivoToUpdate) {
+				var iAditivo = await uow.AditivoItemRepository.GetByIdAsync(rItemAditivo.Id);
+				if (iAditivo == null) {
+					ModelState.AddModelError("AditivoItem", "Não foi localizado o item do aditivo para atualização! (AditivoItem.id="+rItemAditivo.Id+")");
+					return ValidationProblem(ModelState);
+				}
+				iAditivo.Quantidade = rItemAditivo.Quantidade;
+				iAditivo.ValorTotal = rItemAditivo.ValorTotal;
+
+				await uow.AditivoItemRepository.UpdateAsync(iAditivo.Id, iAditivo);
+			}
+
+			//Remove os itens do aditivo
+			foreach (var idAditivoItem in request.ItensAditivoToDelete)
+				await uow.AditivoItemRepository.DeleteAsync(idAditivoItem);
+
+			//Remove os itens do contrato
+			foreach (var idContratoItem in request.ItensContratoToDelete) {
+				await uow.ContratoItemRepository.DeleteAsync(idContratoItem);
+			}
+
+
+			//salva as alterações
+			await uow.SaveAsync();
+
+			return Ok();
+
+		}
+
 
 		[HttpGet]
 		[Authorize(Roles = UsuarioRole.READER_ROLE)]
