@@ -16,6 +16,8 @@ namespace contratosimples_api.Application.Core.Repositories
 		private GenericRepository<ContratoItem>? contratoItemRepository;
 		private GenericRepository<Aditivo>? aditivoRepository;
 		private GenericRepository<AditivoItem>? aditivoItemRepository;
+		private GenericRepository<Medicao>? medicaoRepository;
+		private GenericRepository<MedicaoItem>? medicaoItemRepository;
 
 		public ContratoSimplesUnitOfWork(IConfiguration config, TenantService tenantService) : base(config) {
 			var connectionString = config.GetConnectionString("ContratoSimplesConnectionString");
@@ -27,6 +29,10 @@ namespace contratosimples_api.Application.Core.Repositories
 
 			var builder = new DbContextOptionsBuilder<ContratoSimplesDbContext>();
 			builder.UseNpgsql(connectionString);
+			# if DEBUG
+			builder.LogTo(Console.WriteLine);
+			builder.EnableSensitiveDataLogging();
+			#endif
 
 			dbContext = new ContratoSimplesDbContext(builder.Options);
 			dbContext.Database.Migrate();
@@ -86,6 +92,20 @@ namespace contratosimples_api.Application.Core.Repositories
 				if (aditivoItemRepository == null)
 					aditivoItemRepository = new GenericRepository<AditivoItem>(dbContext);
 				return aditivoItemRepository;
+			}
+		}
+		public GenericRepository<Medicao> MedicaoRepository {
+			get {
+				if (medicaoRepository == null)
+					medicaoRepository = new GenericRepository<Medicao>(dbContext);
+				return medicaoRepository;
+			}
+		}
+		public GenericRepository<MedicaoItem> MedicaoItemRepository {
+			get {
+				if (medicaoItemRepository == null)
+					medicaoItemRepository = new GenericRepository<MedicaoItem>(dbContext);
+				return medicaoItemRepository;
 			}
 		}
 	}

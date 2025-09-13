@@ -13,6 +13,8 @@ namespace contratosimples_api.Application.Core.Data
 		public DbSet<ContratoItem> ContratoItem { get; set; }
 		public DbSet<Aditivo> Aditivo { get; set; }
 		public DbSet<AditivoItem> AditivoItem { get; set; }
+		public DbSet<Medicao> Medicao { get; set; }
+		public DbSet<MedicaoItem> MedicaoItem { get; set; }
 
 		public ContratoSimplesDbContext(DbContextOptions<ContratoSimplesDbContext> options) : base(options) {
 			AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
