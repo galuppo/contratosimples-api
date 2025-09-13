@@ -322,6 +322,13 @@ namespace contratosimples_api.Application.Core.Controllers
 			}
 
 			await uow.AditivoRepository.DeleteAsync(idAditivo);
+
+			//Remove os itens do contrato
+			foreach (var id in request.ItensToDelete) {
+				await uow.ContratoItemRepository.DeleteAsync(id);
+			}
+
+
 			await uow.SaveAsync();
 			return Ok(idAditivo);
 		}

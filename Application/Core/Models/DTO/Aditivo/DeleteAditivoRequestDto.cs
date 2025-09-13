@@ -6,5 +6,6 @@ namespace contratosimples_api.Application.Core.Models.DTO.Aditivo
 	{
 		public int IdAditivo { get; set; }
 		public List<ContratoItemDto> ItensToUpdate { get; set; }
+		public List<int> ItensToDelete { get; set; }
 	}
 }
