@@ -2,6 +2,8 @@
 using contratosimples_api.Application.Core.Models.DTO.AditivoItem;
 using contratosimples_api.Application.Core.Models.DTO.Contrato;
 using contratosimples_api.Application.Core.Models.DTO.ContratoItem;
+using contratosimples_api.Application.Core.Models.DTO.Medicao;
+using contratosimples_api.Application.Core.Models.DTO.MedicaoItem;
 using contratosimples_api.Application.Core.Models.Entities;
 using contratosimples_api.Application.Core.Repositories;
 using contratosimples_api.Application.Management.Models.Entities;
@@ -93,6 +95,33 @@ namespace contratosimples_api.Application.Core.Controllers
 					adtv.Itens.Add(AditivoItemDto.MapFromEntity(iAditivo));
 				}
 				contratoDto.Aditivos.Add(adtv);
+			}
+
+			var medicoes = await uow.MedicaoRepository.GetAsync(m => m.Contrato.Id == idContrato);
+			contratoDto.Medicoes = [];
+
+			foreach (var m in medicoes) {
+				var med = new MedicaoDto();
+				med.Cabecalho = new MedicaoCabecalhoDto {
+					Id = m.Id,
+					Data = m.Data,
+					IdContrato = idContrato,
+					ValorTotal = m.ValorTotal
+				};
+				med.Itens = [];
+
+				var itens = await uow.MedicaoItemRepository.GetAsync(i => i.Medicao.Id == m.Id, null, "ItemContrato");
+				foreach (var iMed in itens) {
+					med.Itens.Add(new MedicaoItemDto {
+						Id = iMed.Id,
+						IdContratoItem = iMed.ItemContrato.Id,
+						IdMedicao = m.Id,
+						Quantidade = iMed.Quantidade,
+						Valor = iMed.Valor
+					});
+					
+				}
+				contratoDto.Medicoes.Add(med);
 			}
 
 
