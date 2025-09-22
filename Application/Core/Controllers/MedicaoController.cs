@@ -32,7 +32,7 @@ namespace contratosimples_api.Application.Core.Controllers
 			this.uow = uow;
 		}
 
-		private async Task<SaldoMedicaoItem> GetSaldoMedicaoItem(int idItemContrato) {
+		private async Task<SaldoMedicaoItem> GetSaldoMedicaoItem(int idItemContrato, int idMedicaoExclusão = 0) {
 			var result = new SaldoMedicaoItem {
 				Quantidade = 0,
 				Valor = 0
@@ -45,7 +45,7 @@ namespace contratosimples_api.Application.Core.Controllers
 			result.Valor = (decimal)iContrato.ValorTotal;
 
 			//Busca todas as medições do item
-			var iMedicaoList = await uow.MedicaoItemRepository.GetAsync((i) => i.ItemContrato.Id == idItemContrato);
+			var iMedicaoList = await uow.MedicaoItemRepository.GetAsync((i) => (i.ItemContrato.Id == idItemContrato) && (i.Medicao.Id != idMedicaoExclusão));
 
 			foreach (var iMedicao in iMedicaoList) {
 				result.Quantidade -= iMedicao.Quantidade;
@@ -53,6 +53,35 @@ namespace contratosimples_api.Application.Core.Controllers
 			}
 			return result;
 
+		}
+
+		private async Task<string> ValidaMedicao(ContratoItem iContrato, MedicaoItem iMedicao) {
+			//Valida a quantidade sendo medida
+			if (iMedicao.Quantidade <= 0) {
+				return "Não é possível medir uma quantidade zerada ou negativa! (ContratoItem.CodEscopo=" + 
+					iContrato.CodEscopo + "; MedicaoItem.Quantidade=" + iMedicao.Quantidade + ")";
+			}
+
+			//Valida o valor sendo medido
+			if (iMedicao.Valor <= 0) {
+				return "Não é possível medir um valor zerado ou negativo! (ContratoItem.CodEscopo=" + iContrato.CodEscopo +
+					"; MedicaoItem.Valor=" + iMedicao.Valor + ")";
+			}
+
+			var saldoItem = await GetSaldoMedicaoItem(iContrato.Id, iMedicao.Medicao.Id);
+			//Valida o saldo de quantidade
+			if (iMedicao.Quantidade > saldoItem.Quantidade) {
+				return "Não é possível medir uma quantidade acima da disponível no contrato! (ContratoItem.CodEscopo=" + iContrato.CodEscopo +
+					"; MedicaoItem.Quantidade=" + iMedicao.Quantidade + "; Saldo: " + saldoItem.Quantidade + ")";
+			}
+
+			//Valida o saldo de valor
+			if (iMedicao.Valor > saldoItem.Valor) {
+				return "Não é possível medir um valor acima da disponível no contrato! (ContratoItem.CodEscopo=" + iContrato.CodEscopo +
+					"; MedicaoItem.Valor=" + iMedicao.Valor + "; Saldo: " + saldoItem.Valor + ")";
+			}
+
+			return "";
 		}
 
 		[HttpPost]
@@ -77,45 +106,13 @@ namespace contratosimples_api.Application.Core.Controllers
 				ValorTotal = 0
 			};
 					
-			//Cria itens da medição {
+			//Cria itens da medição 
 			foreach (var iRequest in request.Itens) {
 
 				//Busca o item do contrato
 				var iContrato = await uow.ContratoItemRepository.GetByIdAsync(iRequest.IdContratoItem);
 				if (iContrato == null) {
 					ModelState.AddModelError("MedicaoItem", "Item do contrato não encontrado! (ContratoItem.id=" + iRequest.IdContratoItem + ")");
-					return ValidationProblem(ModelState);
-				}
-
-				//Valida a quantidade sendo medida
-				if (iRequest.Quantidade <= 0) {
-					ModelState.AddModelError("MedicaoItem", 
-						"Não é possível medir uma quantidade zerada ou negativa! (ContratoItem.CodEscopo=" + iContrato.CodEscopo + 
-						"; MedicaoItem.Quantidade=" + iRequest.Quantidade + ")");
-					return ValidationProblem(ModelState);
-				}
-
-				//Valida o valor sendo medido
-				if (iRequest.Valor <= 0) {
-					ModelState.AddModelError("MedicaoItem",
-						"Não é possível medir um valor zerado ou negativo! (ContratoItem.CodEscopo=" + iContrato.CodEscopo +
-						"; MedicaoItem.Valor=" + iRequest.Valor + ")");
-					return ValidationProblem(ModelState);
-				}
-
-				var saldoItem = await GetSaldoMedicaoItem(iContrato.Id);
-				//Valida o saldo de quantidade
-				if (iRequest.Quantidade > saldoItem.Quantidade) {
-					ModelState.AddModelError("MedicaoItem",
-						"Não é possível medir uma quantidade acima da disponível no contrato! (ContratoItem.CodEscopo=" + iContrato.CodEscopo +
-						"; MedicaoItem.Quantidade=" + iRequest.Quantidade + "; Saldo: "+saldoItem.Quantidade+")");
-					return ValidationProblem(ModelState);
-				}
-				//Valida o saldo de valor
-				if (iRequest.Valor > saldoItem.Valor) {
-					ModelState.AddModelError("MedicaoItem",
-						"Não é possível medir um valor acima da disponível no contrato! (ContratoItem.CodEscopo=" + iContrato.CodEscopo +
-						"; MedicaoItem.Valor=" + iRequest.Valor + "; Saldo: " + saldoItem.Valor + ")");
 					return ValidationProblem(ModelState);
 				}
 
@@ -126,6 +123,12 @@ namespace contratosimples_api.Application.Core.Controllers
 					Quantidade = iRequest.Quantidade,
 					Valor = iRequest.Valor
 				};
+
+				var erro = await ValidaMedicao(iContrato, medicaoItem);
+				if (erro != "") {
+					ModelState.AddModelError("MedicaoItem", erro);
+					return ValidationProblem(ModelState);
+				}
 
 				await uow.MedicaoItemRepository.InsertAsync(medicaoItem);
 				//Totaliza a medição
@@ -208,5 +211,100 @@ namespace contratosimples_api.Application.Core.Controllers
 			return Ok(result);
 		}
 
+		[HttpPut]
+		[Authorize(Roles = UsuarioRole.WRITER_ROLE)]
+		public async Task<IActionResult> UpdateMedicao([FromBody] UpdateMedicaoRequestDto request) {
+			
+			var medicao = (await uow.MedicaoRepository.GetAsync((m) => m.Id == request.IdMedicao, null, "Contrato")).FirstOrDefault();
+			if (medicao == null) {
+				ModelState.AddModelError("Medicao", "Medição não encontrada! (Medicao.id="+request.IdMedicao+")");
+				return ValidationProblem(ModelState);
+			}
+
+			//Buscar todos os itens para recalcular o valor total da medição
+			//Realiza esse recalculo para manter a consistência de dados entre itens e cabeçalho
+			medicao.ValorTotal = 0;
+			var itensMedicao = await uow.MedicaoItemRepository.GetAsync((i) => i.Medicao.Id == request.IdMedicao);
+			foreach (var iMedicao in itensMedicao) {
+				medicao.ValorTotal += iMedicao.Valor;
+			}
+
+			medicao.Data = request.Data;
+
+			//Cria novos itens
+			foreach(var iRequest in request.ItensToAdd) {
+				//Busca o item do contrato
+				var iContrato = await uow.ContratoItemRepository.GetByIdAsync(iRequest.IdContratoItem);
+				if (iContrato == null) {
+					ModelState.AddModelError("MedicaoItem", "Item do contrato não encontrado! (ContratoItem.id=" + iRequest.IdContratoItem + ")");
+					return ValidationProblem(ModelState);
+				}
+				//Cria a medição do item
+				var medicaoItem = new MedicaoItem {
+					ItemContrato = iContrato,
+					Medicao = medicao,
+					Quantidade = iRequest.Quantidade,
+					Valor = iRequest.Valor
+				};
+
+				var erro = await ValidaMedicao(iContrato, medicaoItem);
+				if (erro != "") {
+					ModelState.AddModelError("MedicaoItem", erro);
+					return ValidationProblem(ModelState);
+				}
+
+				await uow.MedicaoItemRepository.InsertAsync(medicaoItem);
+				//Totaliza o novo item na medição
+				medicao.ValorTotal += medicaoItem.Valor;
+			}
+
+			//Atualiza os itens
+			foreach (var iRequest in request.ItensToUpdate) {
+				//Busca o item da medição
+				var iMedicao = (await uow.MedicaoItemRepository.GetAsync((i) => i.Id == iRequest.IdMedicaoItem, null, "ItemContrato")).FirstOrDefault();
+				if (iMedicao == null) {
+					ModelState.AddModelError("MedicaoItem", "Item da medição não encontrado! (MedicaoItem.id=" + iRequest.IdMedicaoItem + ")");
+					return ValidationProblem(ModelState);
+				}
+
+				//Remove o valor atual do item no total da medição
+				medicao.ValorTotal -= iMedicao.Valor;
+
+				iMedicao.Quantidade = iRequest.Quantidade;
+				iMedicao.Valor = iRequest.Valor;
+
+				var erro = await ValidaMedicao(iMedicao.ItemContrato, iMedicao);
+				if (erro != "") {
+					ModelState.AddModelError("MedicaoItem", erro);
+					return ValidationProblem(ModelState);
+				}
+
+				await uow.MedicaoItemRepository.UpdateAsync(iMedicao.Id, iMedicao);
+				//Totaliza o novo valor na medição
+				medicao.ValorTotal += iMedicao.Valor;
+			}
+
+			//Exclui os itens
+			foreach (var idMedicaoItem in request.ItensToDelete) {
+				//Busca o item da medição
+				var iMedicao = await uow.MedicaoItemRepository.GetByIdAsync(idMedicaoItem);
+				if (iMedicao != null) {
+					await uow.MedicaoItemRepository.DeleteAsync(idMedicaoItem);
+					//Remove o total do item no valor total da medição
+					medicao.ValorTotal -= iMedicao.Valor;
+				}
+			}
+
+			if(medicao.ValorTotal <= 0) {
+				ModelState.AddModelError("Medicao", "Não é possível manter uma medição zerada!");
+				return ValidationProblem(ModelState);
+			}
+		
+			await uow.MedicaoRepository.UpdateAsync(medicao.Id, medicao);
+			await uow.SaveAsync();
+
+
+			return Ok();
+		}
 	}
 }

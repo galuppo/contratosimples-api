@@ -1,0 +1,9 @@
+﻿namespace contratosimples_api.Application.Core.Models.DTO.MedicaoItem
+{
+	public class UpdateMedicaoItemRequestDto
+	{
+		public int IdMedicaoItem { get; set; }
+		public decimal Quantidade { get; set; }
+		public decimal Valor { get; set; }
+	}
+}
