@@ -306,5 +306,14 @@ namespace contratosimples_api.Application.Core.Controllers
 
 			return Ok();
 		}
+
+		[HttpDelete]
+		[Authorize(Roles = UsuarioRole.WRITER_ROLE)]
+		[Route("{idMedicao:int}")]
+		public async Task<IActionResult> DeleteMedicao([FromRoute] int idMedicao) {
+			await uow.MedicaoRepository.DeleteAsync(idMedicao);
+			await uow.SaveAsync();
+			return Ok();
+		}
 	}
 }
